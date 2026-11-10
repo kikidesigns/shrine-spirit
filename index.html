@@ -128,6 +128,7 @@
     <span id="spiritName">Spirit</span>
     <span class="mono" id="moodLbl">calm</span>
     <span style="flex:1"></span>
+    <button id="standBtn" style="display:none;padding:6px 10px;border-radius:10px;background:var(--panel);font-size:13px">On wall?</button>
     <button id="menuBtn">✕</button>
   </div>
   <div class="hudrow" style="margin-top:8px"><span class="mono" style="width:54px">Bond</span><div class="bar" id="bond"><i style="width:0"></i></div></div>
@@ -602,7 +603,15 @@ $('micBtn').onclick = () => {
 };
 
 /* ---------------- stage control ---------------- */
-let mind = null, previewRenderer = null, clock = null, visible = false;
+let mind = null, previewRenderer = null, clock = null, visible = false, mount = null;
+function applyStand(){
+  if (!mount || !creature) return;
+  const stand = settings.stand !== false; // default: drawing lies flat, spirit rises out of it
+  mount.rotation.x = stand ? Math.PI/2 : 0;
+  creature.group.position.set(0, stand ? 0.32 : 0.05, stand ? 0 : 0.3);
+  $('standBtn').textContent = stand ? 'On wall?' : 'On table?';
+}
+$('standBtn').onclick = () => { settings.stand = settings.stand === false; ls.set(SET_KEY, settings); applyStand(); };
 function showStage(){
   $('setup').style.display = 'none'; $('stage').style.display = 'block';
   $('hud').style.display = 'block'; $('chat').style.display = 'block';
@@ -616,6 +625,7 @@ function greet(h){
   spiritSays(why);
 }
 async function stopStage(keepStatus){
+  $('standBtn').style.display = 'none';
   document.documentElement.classList.remove('ar'); document.body.classList.remove('ar');
   if (mind){ try{ mind.renderer.setAnimationLoop(null); await mind.stop(); }catch{} $('arContainer').innerHTML = ''; mind = null; }
   if (previewRenderer){ previewRenderer.setAnimationLoop(null); previewRenderer.dispose(); $('previewContainer').innerHTML = ''; previewRenderer = null; }
@@ -631,7 +641,7 @@ $('btnAR').onclick = async () => {
   saveForm();
   $('btnAR').disabled = true;
   try{
-    await loadLibs(true); clock = new THREE.Clock();
+    await loadLibs(true); clock = new THREE.Clock(); visible = false;
     const target = await getTargetURL();
     if (!target){ status('Add at least one photo of your sculpture first.'); return; }
     status('Waking the spirit…');
@@ -642,13 +652,18 @@ $('btnAR').onclick = async () => {
     scene.add(new THREE.HemisphereLight(0xffffff, 0x334433, 1.2));
     creature.group.scale.setScalar(settings.body === 'wisp' ? 0.22 : 0.5);
     // one anchor per photo; the same spirit hops to whichever angle is seen
+    // mount: lets the spirit stand up out of a flat drawing, or float in front of a wall
+    mount = new THREE.Group(); mount.add(creature.group); applyStand();
     for (let i = 0; i < target.count; i++){
       const a = mind.addAnchor(i);
-      a.onTargetFound = () => { a.group.add(creature.group); creature.group.position.set(0, 0.05, 0.3); if (!visible){ visible = true; $('hint').style.display = 'none'; creature.react('hop'); } };
+      a.onTargetFound = () => { a.group.add(mount); if (!visible){ visible = true; $('hint').style.display = 'none'; creature.react('hop'); } };
       a.onTargetLost = () => { visible = false; $('hint').style.display = 'block'; };
     }
     document.documentElement.classList.add('ar'); document.body.classList.add('ar');
+    // the AR view must be visible BEFORE starting, or the camera feed is sized to zero
+    $('setup').style.display = 'none'; $('stage').style.display = 'block'; $('arContainer').style.display = 'block';
     await mind.start();
+    $('standBtn').style.display = 'inline-block';
     const h = showStage(); $('hint').style.display = 'block';
     renderer.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); renderer.render(scene, camera); });
     greet(h);
