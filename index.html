@@ -71,7 +71,7 @@
 <body>
 
 <section id="setup">
-  <div class="mono">KDS // Prototype One · build 7</div>
+  <div class="mono">KDS // Prototype One · build 8</div>
   <h1>Wake a spirit</h1>
   <p>Photograph anything (a water bottle, a statue, an old photo of a pet). AI turns it into a 3D body, and a spirit moves in.</p>
 
@@ -298,19 +298,15 @@ let lastSeen = {};
 async function run(app, api, name, rules, label){
   const info = api.named_endpoints[name];
   if (!info) throw new Error(`the space has no ${name} step`);
-  const t0 = Date.now(); let last = null;
-  const job = app.submit(name, argsFor(info, rules));
-  for await (const m of job){
-    const secs = Math.round((Date.now() - t0) / 1000);
-    if (m.type === 'status'){
-      if (m.stage === 'error') throw new Error(m.message || 'the free GPU refused the job');
-      const pos = m.position ?? m.queue_position; genStatus(pos > 0 ? `${label}: waiting in line (#${pos})… ${secs}s` : `${label}… ${secs}s`);
-    }
-    if (m.type === 'data') last = m.data;
-    if (m.type === 'status' && m.stage === 'complete') break;
-  }
-  lastSeen[name] = last;
-  return last;
+  const t0 = Date.now();
+  const tick = setInterval(() => genStatus(`${label}… ${Math.round((Date.now() - t0) / 1000)}s`), 1000);
+  try{
+    const res = await app.predict(name, argsFor(info, rules));
+    lastSeen[name] = res?.data ?? null;
+    return res?.data;
+  }catch(err){
+    throw new Error(`${label} failed: ` + (err?.message || err?.title || peek(err)));
+  }finally{ clearInterval(tick); }
 }
 $('btnGen').onclick = async () => {
   saveForm();
@@ -891,7 +887,7 @@ $('btnAR').onclick = async () => {
     const h = showStage();
     $('hint').textContent = 'Point your camera at the object…'; $('hint').style.display = 'block'; $('standBtn').style.display = 'inline-block';
     const fix = () => { try{ mind.resize(); }catch{} const v = mind.video, c = $('arContainer');
-      $('diag').style.display = 'block'; $('diag').textContent = `build 7 · view ${c.clientWidth}x${c.clientHeight} · cam ${v?.videoWidth||0}x${v?.videoHeight||0}`; v?.play?.().catch(() => {}); };
+      $('diag').style.display = 'block'; $('diag').textContent = `build 8 · view ${c.clientWidth}x${c.clientHeight} · cam ${v?.videoWidth||0}x${v?.videoHeight||0}`; v?.play?.().catch(() => {}); };
     setTimeout(fix, 300); setTimeout(fix, 1500);
     r.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); r.render(scene, camera); });
     greet(h);
