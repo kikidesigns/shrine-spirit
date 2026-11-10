@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Shrine Spirit — Prototype One</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#121414;--panel:rgba(22,24,24,.86);--line:#2c302f;--text:#ecebe6;--mute:#8e938f;--accent:#a6d52b;--warm:#f3c46b}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+  .mono{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+  button{font:inherit;color:inherit;background:#1d201f;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
+  button.primary{background:var(--accent);color:#111;border-color:var(--accent);font-weight:600}
+  button:disabled{opacity:.45}
+  select{font:inherit;color:var(--text);background:#191b1b;border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
+  input,textarea{font:inherit;color:var(--text);background:#191b1b;border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
+  textarea{resize:vertical;min-height:64px}
+  label{display:block;margin:16px 0 6px}
+  #setup{position:absolute;inset:0;overflow-y:auto;padding:calc(24px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom))}
+  #setup h1{font-weight:600;font-size:26px;margin:8px 0 4px}
+  #setup p{color:var(--mute);line-height:1.5;margin:6px 0}
+  .thumbs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .thumbs img{width:76px;height:76px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+  .row{display:flex;gap:10px;margin-top:20px}
+  .row>*{flex:1}
+  details{margin-top:20px;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+  summary{cursor:pointer;color:var(--mute)}
+  #status{margin-top:14px;min-height:20px;color:var(--warm);font-size:14px}
+  #stage{position:absolute;inset:0;display:none}
+  #arContainer,#previewContainer{position:absolute;inset:0;overflow:hidden}
+  #previewContainer{background:radial-gradient(circle at 50% 40%,#2a3a2c,#0e1110 70%);display:none}
+  #hud{position:absolute;left:0;right:0;top:0;padding:calc(12px + env(safe-area-inset-top)) 14px 10px;display:none;z-index:10;background:linear-gradient(#000a,#0000)}
+  .hudrow{display:flex;align-items:center;gap:10px}
+  .bar{flex:1;height:6px;background:#ffffff1f;border-radius:4px;overflow:hidden}
+  .bar>i{display:block;height:100%;background:var(--accent);transition:width .6s}
+  #energy>i{background:var(--warm)}
+  #spiritName{font-weight:600;font-size:17px}
+  #hint{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);z-index:9;text-align:center;padding:12px 16px;background:var(--panel);border-radius:14px;display:none;max-width:80%}
+  #chat{position:absolute;left:0;right:0;bottom:0;z-index:10;padding:10px 12px calc(12px + env(safe-area-inset-bottom));display:none;background:linear-gradient(#0000,#000c 30%)}
+  #log{max-height:34vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-bottom:8px}
+  .msg{padding:9px 12px;border-radius:14px;max-width:85%;line-height:1.4;font-size:15px}
+  .msg.spirit{background:var(--panel);border:1px solid #a6d52b44;align-self:flex-start}
+  .msg.you{background:#2b2f2d;align-self:flex-end}
+  .msg.sys{align-self:center;background:none;color:var(--mute);font-size:12px}
+  .offers{display:flex;gap:8px;margin-bottom:8px;overflow-x:auto}
+  .offers button{padding:8px 12px;border-radius:999px;font-size:14px;white-space:nowrap;background:var(--panel)}
+  .inputrow{display:flex;gap:8px}
+  .inputrow input{flex:1}
+  .inputrow button{padding:10px 14px}
+  #menuBtn{padding:6px 10px;border-radius:10px;background:var(--panel)}
+</style>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+  "mindar-image":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js",
+  "mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+}}
+</script>
+</head>
+<body>
+
+<!-- ============ SETUP ============ -->
+<section id="setup">
+  <div class="mono">KDS // Prototype One</div>
+  <h1>Wake a shrine spirit</h1>
+  <p>Photograph your sculpture, give its spirit a name, then point your phone at it.</p>
+
+  <label class="mono">Spirit name</label>
+  <input id="fName" placeholder="e.g. Pip, Old Moss, Saffron">
+
+  <label class="mono">What is the sculpture?</label>
+  <textarea id="fDesc" placeholder="e.g. a small clay owl my grandmother gave me, sits on the bookshelf"></textarea>
+
+  <label class="mono">Personality (optional)</label>
+  <textarea id="fPersona" placeholder="e.g. dramatic, proud, secretly soft-hearted; thinks it's a mighty guardian"></textarea>
+
+  <label class="mono">Photos of the sculpture (1–3)</label>
+  <p style="font-size:13px">Shoot it straight on, well lit, filling the frame. Extra angles help it recognize the sculpture from more sides.</p>
+  <input id="fPhotos" type="file" accept="image/*" multiple>
+  <div class="thumbs" id="thumbs"></div>
+
+  <label class="mono">Spirit body</label>
+  <select id="fBody">
+    <option value="photo">Wire ghost — shaped from your photo</option>
+    <option value="scan">Wire ghost — from a 3D scan (.glb)</option>
+    <option value="wisp">Classic wisp</option>
+  </select>
+  <div id="scanRow" style="display:none">
+    <p style="font-size:13px">For a true 3D shape, scan the sculpture with a free app like Polycam or KIRI Engine, export as <b>.glb</b>, and pick the file here.</p>
+    <input id="fScan" type="file">
+    <div id="scanName" class="mono" style="margin-top:6px"></div>
+  </div>
+  <label style="display:flex;align-items:center;gap:10px;margin-top:14px"><input id="fEyes" type="checkbox" checked style="width:auto"> Glowing spirit eyes</label>
+
+  <details>
+    <summary>Brain settings (AI)</summary>
+    <p style="font-size:13px">Without a key, the spirit uses simple built-in lines. For real conversation, paste a free Google AI Studio (Gemini) key. It's stored only on this phone.</p>
+    <label class="mono">Gemini API key</label>
+    <input id="fKey" type="password" placeholder="paste key">
+    <label class="mono">Model</label>
+    <input id="fModel" value="gemini-2.5-flash">
+  </details>
+
+  <div class="row">
+    <button class="primary" id="btnAR">Start AR</button>
+  </div>
+  <div class="row">
+    <button id="btnPreview">Test without camera</button>
+    <button id="btnReset">Reset spirit</button>
+  </div>
+  <div id="status"></div>
+</section>
+
+<!-- ============ STAGE ============ -->
+<section id="stage">
+  <div id="arContainer"></div>
+  <div id="previewContainer"></div>
+</section>
+
+<div id="hud">
+  <div class="hudrow">
+    <span id="spiritName">Spirit</span>
+    <span class="mono" id="moodLbl">calm</span>
+    <span style="flex:1"></span>
+    <button id="menuBtn">✕</button>
+  </div>
+  <div class="hudrow" style="margin-top:8px"><span class="mono" style="width:54px">Bond</span><div class="bar" id="bond"><i style="width:0"></i></div></div>
+  <div class="hudrow" style="margin-top:6px"><span class="mono" style="width:54px">Glow</span><div class="bar" id="energy"><i style="width:0"></i></div></div>
+</div>
+
+<div id="hint">Point your camera at the sculpture…</div>
+
+<div id="chat">
+  <div id="log"></div>
+  <div class="offers">
+    <button data-offer="tea">🍵 Tea</button>
+    <button data-offer="flower">🌸 Flower</button>
+    <button data-offer="candle">🕯️ Candle</button>
+    <button data-offer="song">🎶 Hum a song</button>
+    <button id="ttsBtn">🔊 Voice on</button>
+  </div>
+  <div class="inputrow">
+    <input id="msgIn" placeholder="Talk to your spirit…" enterkeyhint="send">
+    <button id="micBtn">🎙️</button>
+    <button class="primary" id="sendBtn">Send</button>
+  </div>
+</div>
+
+<script type="module">
+// Libraries load lazily so the setup screen always works, and any load failure is shown on screen.
+let THREE, MindARThree, GLTFLoader;
+async function loadLibs(withAR){
+  if (!THREE) THREE = await import('three');
+  if (!GLTFLoader) ({ GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js'));
+  if (withAR && !MindARThree){
+    status('Loading AR engine…');
+    await import('mindar-image');
+    ({ MindARThree } = await import('mindar-image-three'));
+  }
+}
+addEventListener('error', e => { const s = document.getElementById('status'); if (s) s.textContent = 'Error: ' + e.message; });
+addEventListener('unhandledrejection', e => { const s = document.getElementById('status'); if (s) s.textContent = 'Error: ' + (e.reason?.message || e.reason); });
+
+/* ---------------- storage ---------------- */
+const LS_KEY = 'shrineSpirit.v1';
+const SET_KEY = 'shrineSpirit.settings';
+const ls = {
+  get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch{ return d; } },
+  set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} }
+};
+// IndexedDB for the compiled image target (too big for localStorage)
+const idb = {
+  db: null,
+  async open(){ if(this.db) return this.db;
+    this.db = await new Promise((res, rej)=>{ const r = indexedDB.open('shrineSpirit', 1);
+      r.onupgradeneeded = ()=> r.result.createObjectStore('kv');
+      r.onsuccess = ()=> res(r.result); r.onerror = ()=> rej(r.error); });
+    return this.db; },
+  async get(k){ try{ const db = await this.open(); return await new Promise(res=>{ const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(null); }); }catch{ return null; } },
+  async set(k, v){ try{ const db = await this.open(); await new Promise(res=>{ const t = db.transaction('kv','readwrite'); t.objectStore('kv').put(v,k); t.oncomplete=res; t.onerror=res; }); }catch{} },
+  async del(k){ try{ const db = await this.open(); db.transaction('kv','readwrite').objectStore('kv').delete(k); }catch{} }
+};
+
+let spirit = ls.get(LS_KEY, null);
+let settings = ls.get(SET_KEY, { key:'', model:'gemini-2.5-flash', tts:true });
+
+const $ = id => document.getElementById(id);
+const status = t => $('status').textContent = t;
+
+// prefill setup form
+if (spirit){ $('fName').value = spirit.name; $('fDesc').value = spirit.desc; $('fPersona').value = spirit.persona; }
+$('fKey').value = settings.key || '';
+$('fModel').value = settings.model || 'gemini-2.5-flash';
+$('fBody').value = settings.body || 'photo';
+$('fEyes').checked = settings.eyes !== false;
+const syncBody = () => $('scanRow').style.display = $('fBody').value === 'scan' ? 'block' : 'none';
+$('fBody').onchange = syncBody; syncBody();
+idb.get('scanName').then(n => { if (n) $('scanName').textContent = 'Saved scan: ' + n; });
+$('fScan').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  if (!/\.(glb|gltf)$/i.test(f.name)){ status('Please pick a .glb file.'); return; }
+  await idb.set('scan', await f.arrayBuffer()); await idb.set('scanName', f.name);
+  $('scanName').textContent = 'Saved scan: ' + f.name; status('');
+});
+
+/* ---------------- photos -> image targets ---------------- */
+let photoImgs = [];
+$('fPhotos').addEventListener('change', async e => {
+  const files = [...e.target.files].slice(0, 3);
+  photoImgs = []; $('thumbs').innerHTML = '';
+  for (const f of files){
+    const img = await downscale(f, 900);
+    photoImgs.push(img);
+    const t = new Image(); t.src = img.src; $('thumbs').appendChild(t);
+  }
+  if (photoImgs[0]) await idb.set('bodyPhoto', photoImgs[0].src);
+  status(photoImgs.length ? `${photoImgs.length} photo${photoImgs.length>1?'s':''} ready.` : '');
+});
+function downscale(file, max){
+  return new Promise(res=>{
+    const url = URL.createObjectURL(file); const src = new Image();
+    src.onload = ()=>{
+      const s = Math.min(1, max / Math.max(src.width, src.height));
+      const c = document.createElement('canvas'); c.width = Math.round(src.width*s); c.height = Math.round(src.height*s);
+      c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+      const out = new Image(); out.onload = ()=>res(out); out.src = c.toDataURL('image/jpeg', .9);
+      URL.revokeObjectURL(url);
+    };
+    src.src = url;
+  });
+}
+async function getTargetURL(){
+  if (photoImgs.length){
+    status('Learning what your sculpture looks like… (10–40 sec)');
+    const compiler = new window.MINDAR.IMAGE.Compiler();
+    await compiler.compileImageTargets(photoImgs, p => status(`Learning your sculpture… ${Math.round(p)}%`));
+    const buf = await compiler.exportData();
+    await idb.set('target', buf); await idb.set('targetCount', photoImgs.length);
+    photoImgs = [];
+    return { url: URL.createObjectURL(new Blob([buf])), count: await idb.get('targetCount') };
+  }
+  const saved = await idb.get('target');
+  if (saved) return { url: URL.createObjectURL(new Blob([saved])), count: (await idb.get('targetCount')) || 1 };
+  return null;
+}
+
+/* ---------------- spirit state ---------------- */
+function saveForm(){
+  settings.key = $('fKey').value.trim(); settings.model = $('fModel').value.trim() || 'gemini-2.5-flash';
+  settings.body = $('fBody').value; settings.eyes = $('fEyes').checked;
+  ls.set(SET_KEY, settings);
+  const name = $('fName').value.trim() || 'Pip';
+  if (!spirit) spirit = { name, desc:'', persona:'', bond:5, energy:70, lastSeen:Date.now(), born:Date.now(), memories:[], history:[], offerCooldown:{} };
+  spirit.name = name; spirit.desc = $('fDesc').value.trim(); spirit.persona = $('fPersona').value.trim();
+  ls.set(LS_KEY, spirit);
+}
+function persist(){ ls.set(LS_KEY, spirit); }
+function hoursAway(){ return (Date.now() - (spirit.lastSeen || Date.now())) / 36e5; }
+function applyTimeAway(){
+  const h = hoursAway();
+  spirit.energy = Math.max(5, spirit.energy - h * 2);   // fades ~2/hr while you're gone
+  return h;
+}
+function updateHUD(){
+  $('spiritName').textContent = spirit.name;
+  $('bond').firstElementChild.style.width = Math.min(100, spirit.bond) + '%';
+  $('energy').firstElementChild.style.width = Math.min(100, spirit.energy) + '%';
+}
+function bondTitle(b){ return b < 15 ? 'curious stranger' : b < 35 ? 'new friend' : b < 60 ? 'trusted companion' : b < 85 ? 'bonded guardian' : 'soul-tied'; }
+
+/* ---------------- 3D spirit ---------------- */
+const MOODS = {
+  calm:{c:0x7fe0c4}, happy:{c:0xffd36b}, sassy:{c:0xff7ab8}, sad:{c:0x6f9bff}, sleepy:{c:0xb9a6ff}, proud:{c:0xffa04d}, curious:{c:0xa6d52b}
+};
+let _glowTex = null;
+function glowTexture(){
+  if (_glowTex) return _glowTex;
+  const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(64,64,0,64,64,64);
+  gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(.35,'rgba(255,255,255,.35)'); gr.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = gr; g.fillRect(0,0,128,128); return (_glowTex = new THREE.CanvasTexture(c));
+}
+function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
+
+/* --- Shape the sculpture's silhouette from a photo, then inflate it into a 3D mesh --- */
+function silhouetteMask(img, MAX = 72){
+  const s = MAX / Math.max(img.width, img.height);
+  const W = Math.max(8, Math.round(img.width * s)), H = Math.max(8, Math.round(img.height * s));
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'); g.drawImage(img, 0, 0, W, H);
+  const px = g.getImageData(0, 0, W, H).data;
+  // background = colors along the photo's border
+  const samples = [];
+  for (let x = 0; x < W; x += 2){ samples.push(x, x + (H-1)*W); }
+  for (let y = 0; y < H; y += 2){ samples.push(y*W, y*W + W-1); }
+  const bg = samples.map(i => [px[i*4], px[i*4+1], px[i*4+2]]);
+  const dist = new Float32Array(W*H);
+  for (let i = 0; i < W*H; i++){
+    const r = px[i*4], gg = px[i*4+1], b = px[i*4+2]; let m = 1e9;
+    for (const q of bg){ const d = (r-q[0])**2 + (gg-q[1])**2 + (b-q[2])**2; if (d < m) m = d; }
+    dist[i] = Math.sqrt(m);
+  }
+  // Otsu threshold
+  const hist = new Array(256).fill(0); for (const d of dist) hist[Math.min(255, d|0)]++;
+  let sum = 0; hist.forEach((h, i) => sum += i*h);
+  let wB = 0, sB = 0, best = 0, t = 40;
+  for (let i = 0; i < 256; i++){ wB += hist[i]; if (!wB) continue; const wF = W*H - wB; if (!wF) break;
+    sB += i*hist[i]; const mB = sB/wB, mF = (sum-sB)/wF, v = wB*wF*(mB-mF)**2; if (v > best){ best = v; t = i; } }
+  t = Math.max(t, 18);
+  let mask = new Uint8Array(W*H); for (let i = 0; i < W*H; i++) mask[i] = dist[i] > t ? 1 : 0;
+  // keep the largest blob
+  const lab = new Int32Array(W*H); let bestLab = 0, bestN = 0, L = 0;
+  for (let i = 0; i < W*H; i++){ if (!mask[i] || lab[i]) continue; L++; let n = 0; const st = [i]; lab[i] = L;
+    while (st.length){ const k = st.pop(); n++; const x = k % W, y = (k / W) | 0;
+      for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]){ const nx = x+dx, ny = y+dy; if (nx<0||ny<0||nx>=W||ny>=H) continue; const j = ny*W+nx; if (mask[j] && !lab[j]){ lab[j] = L; st.push(j); } } }
+    if (n > bestN){ bestN = n; bestLab = L; } }
+  for (let i = 0; i < W*H; i++) mask[i] = lab[i] === bestLab ? 1 : 0;
+  // fill holes: anything not reachable from the border is inside
+  const out = new Uint8Array(W*H); const st = [];
+  for (let x = 0; x < W; x++){ st.push(x, x+(H-1)*W); } for (let y = 0; y < H; y++){ st.push(y*W, y*W+W-1); }
+  while (st.length){ const k = st.pop(); if (out[k] || mask[k]) continue; out[k] = 1; const x = k % W, y = (k / W) | 0;
+    if (x>0) st.push(k-1); if (x<W-1) st.push(k+1); if (y>0) st.push(k-W); if (y<H-1) st.push(k+W); }
+  for (let i = 0; i < W*H; i++) mask[i] = out[i] ? 0 : 1;
+  // sanity: if the cut-out failed, fall back to a soft oval
+  const frac = bestN / (W*H);
+  if (frac < 0.06 || frac > 0.93){
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){ const u = (x/W-.5)/.38, v = (y/H-.5)/.46; mask[y*W+x] = u*u+v*v < 1 ? 1 : 0; }
+  }
+  return { mask, W, H };
+}
+function inflateMask({ mask, W, H }){
+  // chamfer distance to the edge -> rounded "puffed" height
+  const D = new Float32Array(W*H); const INF = 1e6;
+  for (let i = 0; i < W*H; i++) D[i] = mask[i] ? INF : 0;
+  const at = (x, y) => (x<0||y<0||x>=W||y>=H) ? 0 : D[y*W+x];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){ const i = y*W+x; if (!D[i]) continue;
+    D[i] = Math.min(D[i], at(x-1,y)+1, at(x,y-1)+1, at(x-1,y-1)+1.414, at(x+1,y-1)+1.414); }
+  for (let y = H-1; y >= 0; y--) for (let x = W-1; x >= 0; x--){ const i = y*W+x; if (!D[i]) continue;
+    D[i] = Math.min(D[i], at(x+1,y)+1, at(x,y+1)+1, at(x+1,y+1)+1.414, at(x-1,y+1)+1.414); }
+  let maxD = 1; for (const d of D) if (d > maxD) maxD = d;
+  const sc = 1.25 / Math.max(W, H), depth = 0.32;
+  const idx = new Int32Array(W*H).fill(-1), pos = [], zs = [];
+  const inc = (x, y) => x>=0 && y>=0 && x<W && y<H && mask[y*W+x];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++){
+    if (!(inc(x,y) || inc(x-1,y) || inc(x,y-1) || inc(x-1,y-1))) continue;
+    const z = inc(x,y) ? Math.sqrt(D[y*W+x] / maxD) * depth : 0;
+    idx[y*W+x] = pos.length / 3; pos.push((x - W/2) * sc, (H/2 - y) * sc, z); zs.push(z);
+  }
+  const n = pos.length / 3;
+  for (let k = 0; k < n; k++) pos.push(pos[k*3], pos[k*3+1], -pos[k*3+2] * 0.8); // back side (slightly flatter)
+  const faces = [];
+  for (let y = 0; y < H-1; y++) for (let x = 0; x < W-1; x++){
+    const a = idx[y*W+x], b = idx[y*W+x+1], c = idx[(y+1)*W+x], d = idx[(y+1)*W+x+1];
+    if (a<0||b<0||c<0||d<0) continue;
+    if (!(mask[y*W+x] || mask[y*W+x+1] || mask[(y+1)*W+x] || mask[(y+1)*W+x+1])) continue;
+    faces.push(a,c,b, b,c,d, a+n,b+n,c+n, b+n,d+n,c+n);
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(faces); geo.computeVertexNormals();
+  // eyes: near the top of the figure, on the front surface
+  let minY = H, maxY = 0; for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (mask[y*W+x]){ if (y<minY) minY=y; if (y>maxY) maxY=y; }
+  const ey = Math.round(minY + (maxY-minY) * 0.22); let l = W, r = 0;
+  for (let x = 0; x < W; x++) if (mask[ey*W+x]){ if (x<l) l=x; if (x>r) r=x; }
+  const cx = (l + r) / 2, spread = Math.max(2, (r - l) * 0.2);
+  const eyeAt = x => { const xi = Math.round(x), zi = idx[ey*W+xi]; return new THREE.Vector3((xi - W/2)*sc, (H/2 - ey)*sc, (zi>=0 ? pos[zi*3+2] : depth*.6) + 0.02); };
+  return { geo, eyes:[eyeAt(cx - spread), eyeAt(cx + spread)], height:(maxY-minY)*sc };
+}
+async function bodyFromScan(buf){
+  const gltf = await new Promise((res, rej) => new GLTFLoader().parse(buf, '', res, rej));
+  const root = gltf.scene; root.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(root), size = box.getSize(new THREE.Vector3()), ctr = box.getCenter(new THREE.Vector3());
+  const s = 1.25 / Math.max(size.x, size.y, size.z);
+  const geos = [];
+  root.traverse(o => { if (o.isMesh){ const g = o.geometry.clone(); g.applyMatrix4(o.matrixWorld); g.translate(-ctr.x, -ctr.y, -ctr.z); g.scale(s, s, s); geos.push(g); } });
+  const top = size.y * s / 2, front = size.z * s / 2;
+  return { geos, eyes:[new THREE.Vector3(-0.09, top*0.6, front), new THREE.Vector3(0.09, top*0.6, front)], height:size.y*s };
+}
+
+/* --- wire-ghost look: glowing wire lines + faint translucent fill + sparkle points --- */
+function ghostParts(geos, tint){
+  const g = new THREE.Group();
+  const lineMat = new THREE.LineBasicMaterial({ color:0xffffff, transparent:true, opacity:.8, blending:THREE.AdditiveBlending, depthWrite:false });
+  const fillMat = new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:.10, side:THREE.DoubleSide, blending:THREE.AdditiveBlending, depthWrite:false });
+  const ptMat = new THREE.PointsMaterial({ map:glowTexture(), size:0.035, transparent:true, opacity:.9, blending:THREE.AdditiveBlending, depthWrite:false });
+  for (const geo of geos){
+    const tris = (geo.index ? geo.index.count : geo.attributes.position.count) / 3;
+    const wire = tris > 30000 ? new THREE.EdgesGeometry(geo, 12) : new THREE.WireframeGeometry(geo);
+    g.add(new THREE.LineSegments(wire, lineMat), new THREE.Mesh(geo, fillMat));
+    const p = geo.attributes.position, step = Math.max(1, Math.floor(p.count / 400)), arr = [];
+    for (let i = 0; i < p.count; i += step) arr.push(p.getX(i), p.getY(i), p.getZ(i));
+    const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
+    g.add(new THREE.Points(pg, ptMat));
+  }
+  tint.push(lineMat, fillMat, ptMat);
+  return { group:g, lineMat, fillMat };
+}
+
+async function buildBody(kind, tint){
+  if (kind === 'scan'){
+    const buf = await idb.get('scan');
+    if (buf){ try{ const r = await bodyFromScan(buf); return { ...ghostParts(r.geos, tint), eyes:r.eyes, height:r.height, ghost:true }; }
+      catch(e){ addMsg('sys', 'Could not read the 3D scan, using your photo instead.'); } }
+    kind = 'photo';
+  }
+  if (kind === 'photo'){
+    const src = await idb.get('bodyPhoto');
+    if (src){ const r = inflateMask(silhouetteMask(await loadImg(src))); return { ...ghostParts([r.geo], tint), eyes:r.eyes, height:r.height, ghost:true }; }
+  }
+  // classic wisp
+  const g = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({ color:0xffffff, emissive:MOODS.calm.c, emissiveIntensity:.9, roughness:.4, transparent:true, opacity:.92 });
+  const pts = []; for (let i=0;i<=20;i++){ const t=i/20; pts.push(new THREE.Vector2(Math.sin(Math.PI*t)*(0.5+0.5*(1-t))*0.55, -0.55 + t*1.15)); }
+  g.add(new THREE.Mesh(new THREE.LatheGeometry(pts, 32), mat));
+  const leafGeo = new THREE.SphereGeometry(0.16, 16, 12); leafGeo.scale(0.45, 1.3, 0.25);
+  const leafMat = new THREE.MeshStandardMaterial({ color:0xa6d52b, emissive:0x3d5a10, roughness:.6 });
+  const earL = new THREE.Mesh(leafGeo, leafMat), earR = earL.clone();
+  earL.position.set(-0.2, 0.62, 0); earL.rotation.z = 0.5; earR.position.set(0.2, 0.62, 0); earR.rotation.z = -0.5; g.add(earL, earR);
+  tint.push({ wisp: mat });
+  return { group:g, eyes:[new THREE.Vector3(-0.15, 0.12, 0.4), new THREE.Vector3(0.15, 0.12, 0.4)], height:1.15, ears:[earL, earR], ghost:false };
+}
+
+async function createSpirit(){
+  const root = new THREE.Group();
+  const body = new THREE.Group(); root.add(body);
+  const tint = [];
+  const parts = await buildBody(settings.body || 'photo', tint);
+  body.add(parts.group);
+  // eyes
+  const eyes = [];
+  if (settings.eyes !== false){
+    for (const p of parts.eyes){
+      const e = new THREE.Group(); e.position.copy(p);
+      const ball = new THREE.Mesh(new THREE.SphereGeometry(parts.ghost ? 0.045 : 0.075, 16, 12),
+        new THREE.MeshBasicMaterial({ color: parts.ghost ? 0xffffff : 0x141414 }));
+      e.add(ball);
+      if (parts.ghost){ const s = new THREE.Sprite(new THREE.SpriteMaterial({ map:glowTexture(), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false })); s.scale.set(.22,.22,1); e.add(s); tint.push(s.material); }
+      else { const hi = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), new THREE.MeshBasicMaterial({ color:0xffffff })); hi.position.set(0.025,0.03,0.06); e.add(hi); }
+      body.add(e); eyes.push(e);
+    }
+  }
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map:glowTexture(), transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, opacity:.6 }));
+  glow.scale.set(2.2, 2.2, 1); root.add(glow); tint.push(glow.material);
+  const N = 40, mg = new THREE.BufferGeometry(), mp = new Float32Array(N*3), seeds = [];
+  for (let i=0;i<N;i++) seeds.push({ r:0.6+Math.random()*0.5, s:0.4+Math.random(), o:Math.random()*6.28, y:(Math.random()-.5)*1.2 });
+  mg.setAttribute('position', new THREE.BufferAttribute(mp, 3));
+  const motesMat = new THREE.PointsMaterial({ map:glowTexture(), size:0.09, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending });
+  root.add(new THREE.Points(mg, motesMat)); tint.push(motesMat);
+  const light = new THREE.PointLight(MOODS.calm.c, 1.5, 4); root.add(light);
+
+  let mood = 'calm', target = new THREE.Color(MOODS.calm.c), cur = new THREE.Color(MOODS.calm.c);
+  let hop = 0, spin = 0, nextBlink = 2, blink = 0;
+  return {
+    group: root,
+    setMood(m){ if (!MOODS[m]) m = 'calm'; mood = m; target.set(MOODS[m].c); $('moodLbl').textContent = m; },
+    react(kind){ if (kind === 'hop') hop = 1; if (kind === 'spin') spin = 1; },
+    update(t, dt, energy){
+      cur.lerp(target, Math.min(1, dt*3));
+      for (const m of tint){ if (m.wisp){ m.wisp.emissive.copy(cur); m.wisp.emissiveIntensity = 0.35 + energy/100*0.75; } else m.color.copy(cur); }
+      light.color.copy(cur);
+      const e = energy/100;
+      glow.material.opacity = 0.25 + e*0.5;
+      if (parts.ghost){ // wire flickers like a signal, brighter with more glow
+        parts.lineMat.opacity = (0.35 + e*0.6) * (0.85 + 0.15*Math.sin(t*9) * Math.sin(t*2.3));
+        parts.fillMat.opacity = 0.05 + e*0.1 + 0.03*Math.sin(t*2);
+      }
+      const sleepy = mood === 'sleepy' || energy < 20;
+      const bobSpeed = sleepy ? 1.1 : 2.2;
+      hop = Math.max(0, hop - dt*1.6); spin = Math.max(0, spin - dt*1.2);
+      body.position.y = Math.sin(t*bobSpeed)*0.06 + Math.sin(hop*Math.PI)*0.35;
+      body.rotation.y = Math.sin(t*0.7)*0.25 + (spin > 0 ? (1-spin)*Math.PI*2 : 0);
+      body.rotation.z = mood === 'sassy' ? Math.sin(t*3)*0.12 : mood === 'sad' ? 0.08 : Math.sin(t*1.3)*0.04;
+      body.rotation.x = mood === 'sad' ? 0.15 : mood === 'proud' ? -0.12 : 0;
+      const sq = 1 + Math.sin(t*bobSpeed*2)*0.03 + Math.sin(hop*Math.PI)*0.08; body.scale.set(1/Math.sqrt(sq), sq, 1/Math.sqrt(sq));
+      if (parts.ears){ const [L, R] = parts.ears; L.rotation.z = 0.5 + Math.sin(t*2.6)*0.12 + (mood==='sad'?0.6:0); R.rotation.z = -0.5 - Math.sin(t*2.6+1)*0.12 - (mood==='sad'?0.6:0); }
+      nextBlink -= dt; if (nextBlink < 0){ blink = 0.15; nextBlink = 2 + Math.random()*3; }
+      blink = Math.max(0, blink - dt);
+      const lid = sleepy ? 0.25 : (blink > 0 ? 0.1 : (mood === 'happy' ? 0.55 : 1));
+      for (const ey of eyes) ey.scale.y = lid;
+      const pa = mg.attributes.position.array;
+      seeds.forEach((s,i)=>{ const a = s.o + t*s.s*(sleepy?0.4:1); pa[i*3]=Math.cos(a)*s.r; pa[i*3+1]=s.y+Math.sin(t*s.s+s.o)*0.15; pa[i*3+2]=Math.sin(a)*s.r; });
+      mg.attributes.position.needsUpdate = true;
+    }
+  };
+}
+
+/* ---------------- brain ---------------- */
+const OFFERS = {
+  tea:{ label:'a warm cup of tea', energy:15, bond:3 },
+  flower:{ label:'a fresh flower', energy:10, bond:4 },
+  candle:{ label:'a lit candle', energy:25, bond:2 },
+  song:{ label:'a hummed song', energy:8, bond:5 }
+};
+function systemPrompt(){
+  const h = hoursAway();
+  return `You are ${spirit.name}, a small guardian spirit who lives inside a real sculpture: ${spirit.desc || 'a small sculpture in your human\'s home'}.
+You were awakened when your human pointed their phone at you. You're like a pocket-sized household guardian: big personality in a tiny body, a little dramatic, funny, loyal, fiercely protective, and full of homespun spiritual wisdom (ancestors, seasons, the moon, small rituals of care). You never claim to be from any existing movie or franchise.
+${spirit.persona ? 'Your personality: ' + spirit.persona : ''}
+You are also like a pet: you have a glow (energy) of ${Math.round(spirit.energy)}/100 that fades when you're left alone and is restored by offerings (tea, flowers, candles, songs). Bond with your human: ${Math.round(spirit.bond)}/100 (${bondTitle(spirit.bond)}). Act accordingly: low glow = sleepy and a bit needy; high bond = affectionate, inside jokes.
+Your human was away for about ${h < 1 ? 'less than an hour' : Math.round(h) + ' hours'} before this visit.
+Things you remember about your human: ${spirit.memories.length ? spirit.memories.join('; ') : 'nothing yet — be curious about them'}.
+RULES: Reply in 1–3 short sentences, spoken aloud, no emoji, no markdown. Start every reply with exactly one mood tag from [calm] [happy] [sassy] [sad] [sleepy] [proud] [curious]. If your human shares something worth remembering long-term (name, people, goals, worries), add at the very end: [remember: short fact]. Be kind; if your human seems truly distressed, gently encourage them to reach out to people who love them.`;
+}
+async function askBrain(userText){
+  spirit.history.push({ role:'user', text:userText });
+  spirit.history = spirit.history.slice(-20);
+  if (!settings.key) return fallbackReply(userText);
+  const body = {
+    system_instruction:{ parts:[{ text: systemPrompt() }] },
+    contents: spirit.history.map(m => ({ role: m.role === 'user' ? 'user' : 'model', parts:[{ text:m.text }] })),
+    generationConfig:{ temperature:0.95, maxOutputTokens:300 }
+  };
+  if (/2\.5-flash/.test(settings.model)) body.generationConfig.thinkingConfig = { thinkingBudget:0 };
+  try{
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(settings.model)}:generateContent?key=${encodeURIComponent(settings.key)}`,
+      { method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify(body) });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error?.message || r.status);
+    const text = data.candidates?.[0]?.content?.parts?.map(p=>p.text).join('') || '[sleepy] ...mm? Say that again?';
+    return text;
+  }catch(err){
+    addMsg('sys', 'Brain error: ' + err.message);
+    return fallbackReply(userText);
+  }
+}
+function fallbackReply(t){
+  const lines = [
+    '[curious] A visitor! Tell me, what did you do today while I guarded this shelf?',
+    '[proud] I have been protecting this house all day. You are welcome.',
+    '[happy] Your voice makes my glow flicker. Keep talking.',
+    '[sassy] Hmm. Interesting. Not as interesting as tea, but interesting.',
+    '[calm] The moon says rest is also a kind of work.',
+    '[sleepy] Mm... I am listening... mostly.'
+  ];
+  if (spirit.energy < 20) return '[sleepy] So dim... an offering would help... a candle, maybe?';
+  return lines[Math.floor(Math.random()*lines.length)];
+}
+function parseReply(raw){
+  let mood = 'calm', text = raw.trim();
+  const m = text.match(/^\[(\w+)\]\s*/); if (m){ mood = m[1].toLowerCase(); text = text.slice(m[0].length); }
+  const mem = text.match(/\[remember:\s*([^\]]+)\]/i);
+  if (mem){ spirit.memories.push(mem[1].trim()); spirit.memories = spirit.memories.slice(-15); text = text.replace(mem[0], '').trim(); }
+  text = text.replace(/\[\w+\]/g, '').trim();
+  return { mood, text };
+}
+
+/* ---------------- chat ui ---------------- */
+let creature = null, thinking = false;
+function addMsg(who, text){
+  const d = document.createElement('div'); d.className = 'msg ' + who; d.textContent = text;
+  $('log').appendChild(d); $('log').scrollTop = 1e6;
+}
+function speak(text){
+  if (!settings.tts || !('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text); u.pitch = 1.45; u.rate = 1.05; speechSynthesis.speak(u);
+}
+async function spiritSays(userText){
+  if (thinking) return; thinking = true;
+  creature?.setMood('curious');
+  const raw = await askBrain(userText);
+  const { mood, text } = parseReply(raw);
+  spirit.history.push({ role:'model', text: `[${mood}] ${text}` });
+  spirit.bond = Math.min(100, spirit.bond + 0.5);
+  persist(); updateHUD();
+  creature?.setMood(mood);
+  if (mood === 'happy' || mood === 'proud') creature?.react('hop');
+  addMsg('spirit', text); speak(text);
+  thinking = false;
+}
+async function send(){
+  const t = $('msgIn').value.trim(); if (!t) return;
+  $('msgIn').value = ''; addMsg('you', t); await spiritSays(t);
+}
+$('sendBtn').onclick = send;
+$('msgIn').addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
+document.querySelectorAll('[data-offer]').forEach(b => b.onclick = async () => {
+  const k = b.dataset.offer, o = OFFERS[k];
+  const last = spirit.offerCooldown[k] || 0;
+  if (Date.now() - last < 10*60*1000){ addMsg('sys', `${spirit.name} is still enjoying the last one.`); return; }
+  spirit.offerCooldown[k] = Date.now();
+  spirit.energy = Math.min(100, spirit.energy + o.energy); spirit.bond = Math.min(100, spirit.bond + o.bond);
+  persist(); updateHUD(); creature?.react('spin');
+  addMsg('sys', `You offer ${o.label}.`);
+  await spiritSays(`(I place an offering before you: ${o.label}.)`);
+});
+$('ttsBtn').onclick = () => { settings.tts = !settings.tts; ls.set(SET_KEY, settings); $('ttsBtn').textContent = settings.tts ? '🔊 Voice on' : '🔇 Voice off'; if (!settings.tts) speechSynthesis.cancel(); };
+$('ttsBtn').textContent = settings.tts ? '🔊 Voice on' : '🔇 Voice off';
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (!SR) $('micBtn').style.display = 'none';
+$('micBtn').onclick = () => {
+  const rec = new SR(); rec.lang = 'en-US'; rec.interimResults = false;
+  $('micBtn').textContent = '…';
+  rec.onresult = e => { $('msgIn').value = e.results[0][0].transcript; send(); };
+  rec.onend = () => $('micBtn').textContent = '🎙️';
+  rec.start();
+};
+
+/* ---------------- stage control ---------------- */
+let mind = null, previewRenderer = null, clock = null, visible = false;
+function showStage(){
+  $('setup').style.display = 'none'; $('stage').style.display = 'block';
+  $('hud').style.display = 'block'; $('chat').style.display = 'block';
+  const h = applyTimeAway(); spirit.lastSeen = Date.now(); persist(); updateHUD();
+  $('log').innerHTML = '';
+  addMsg('sys', `${spirit.name} · ${bondTitle(spirit.bond)}`);
+  return h;
+}
+function greet(h){
+  const why = h > 24 ? `(I come back after ${Math.round(h/24)} days away.)` : h > 2 ? `(I come back after ${Math.round(h)} hours.)` : spirit.history.length ? '(I\'m back.)' : '(I point my phone at you for the very first time and you wake up.)';
+  spiritSays(why);
+}
+async function stopStage(keepStatus){
+  if (mind){ try{ mind.renderer.setAnimationLoop(null); await mind.stop(); }catch{} $('arContainer').innerHTML = ''; mind = null; }
+  if (previewRenderer){ previewRenderer.setAnimationLoop(null); previewRenderer.dispose(); $('previewContainer').innerHTML = ''; previewRenderer = null; }
+  speechSynthesis?.cancel();
+  spirit && (spirit.lastSeen = Date.now(), persist());
+  $('stage').style.display = $('hud').style.display = $('chat').style.display = $('hint').style.display = 'none';
+  $('previewContainer').style.display = 'none';
+  $('setup').style.display = 'block'; if (keepStatus !== true) status('');
+}
+$('menuBtn').onclick = stopStage;
+
+$('btnAR').onclick = async () => {
+  saveForm();
+  $('btnAR').disabled = true;
+  try{
+    await loadLibs(true); clock = new THREE.Clock();
+    const target = await getTargetURL();
+    if (!target){ status('Add at least one photo of your sculpture first.'); return; }
+    status('Waking the spirit…');
+    creature = await createSpirit();
+    status('Opening camera…');
+    mind = new MindARThree({ container: $('arContainer'), imageTargetSrc: target.url, maxTrack: 1, uiLoading:'no', uiScanning:'no', uiError:'no', filterMinCF:0.0001, filterBeta:0.001 });
+    const { renderer, scene, camera } = mind;
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x334433, 1.2));
+    creature.group.scale.setScalar(settings.body === 'wisp' ? 0.22 : 0.5);
+    // one anchor per photo; the same spirit hops to whichever angle is seen
+    for (let i = 0; i < target.count; i++){
+      const a = mind.addAnchor(i);
+      a.onTargetFound = () => { a.group.add(creature.group); creature.group.position.set(0, 0.05, 0.3); if (!visible){ visible = true; $('hint').style.display = 'none'; creature.react('hop'); } };
+      a.onTargetLost = () => { visible = false; $('hint').style.display = 'block'; };
+    }
+    await mind.start();
+    const h = showStage(); $('hint').style.display = 'block';
+    renderer.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); renderer.render(scene, camera); });
+    greet(h);
+  }catch(err){
+    console.error(err); status('Could not start AR: ' + (err.message || err) + (location.protocol === 'https:' ? '' : ' (the camera needs an https:// link)'));
+    await stopStage(true);
+  }finally{ $('btnAR').disabled = false; }
+};
+
+$('btnPreview').onclick = async () => {
+  saveForm();
+  try{
+    status('Waking the spirit…');
+    await loadLibs(false); clock = new THREE.Clock();
+    creature = await createSpirit();
+  }catch(err){ status('Could not load: ' + (err.message || err)); return; }
+  const el = $('previewContainer'); el.style.display = 'block';
+  const h = showStage();
+  previewRenderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+  previewRenderer.setPixelRatio(Math.min(2, devicePixelRatio)); previewRenderer.setSize(innerWidth, innerHeight);
+  el.appendChild(previewRenderer.domElement);
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, .1, 50);
+  cam.position.set(0, 0.3, 4.2);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x334433, 1.2));
+  const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.8, 0.5, 32), new THREE.MeshStandardMaterial({ color:0x6b6e6a, roughness:.9 }));
+  ped.position.y = -1.3; scene.add(ped);
+  creature.group.position.y = 0.1; scene.add(creature.group);
+  addEventListener('resize', () => { if (!previewRenderer) return; cam.aspect = innerWidth/innerHeight; cam.updateProjectionMatrix(); previewRenderer.setSize(innerWidth, innerHeight); });
+  previewRenderer.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); previewRenderer.render(scene, cam); });
+  greet(h);
+};
+
+$('btnReset').onclick = async () => {
+  if ($('btnReset').dataset.armed !== '1'){ $('btnReset').dataset.armed = '1'; $('btnReset').textContent = 'Tap again to confirm'; return; }
+  localStorage.removeItem(LS_KEY); await idb.del('target'); await idb.del('targetCount'); await idb.del('bodyPhoto'); await idb.del('scan'); await idb.del('scanName'); $('scanName').textContent = '';
+  spirit = null; $('fName').value = $('fDesc').value = $('fPersona').value = ''; $('thumbs').innerHTML = '';
+  $('btnReset').dataset.armed = ''; $('btnReset').textContent = 'Reset spirit'; status('Spirit released. Start fresh anytime.');
+};
+</script>
+</body>
+</html>
