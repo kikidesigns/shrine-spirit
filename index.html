@@ -28,7 +28,11 @@
   summary{cursor:pointer;color:var(--mute)}
   #status{margin-top:14px;min-height:20px;color:var(--warm);font-size:14px}
   #stage{position:absolute;inset:0;display:none}
-  #arContainer,#previewContainer{position:absolute;inset:0;overflow:hidden}
+  #arContainer,#previewContainer{position:absolute;inset:0;overflow:hidden;z-index:0}
+  #stage{z-index:0}
+  body.ar,html.ar{background:#000}
+  #arContainer video{z-index:0 !important}
+  #arContainer canvas{z-index:1 !important}
   #previewContainer{background:radial-gradient(circle at 50% 40%,#2a3a2c,#0e1110 70%);display:none}
   #hud{position:absolute;left:0;right:0;top:0;padding:calc(12px + env(safe-area-inset-top)) 14px 10px;display:none;z-index:10;background:linear-gradient(#000a,#0000)}
   .hudrow{display:flex;align-items:center;gap:10px}
@@ -612,6 +616,7 @@ function greet(h){
   spiritSays(why);
 }
 async function stopStage(keepStatus){
+  document.documentElement.classList.remove('ar'); document.body.classList.remove('ar');
   if (mind){ try{ mind.renderer.setAnimationLoop(null); await mind.stop(); }catch{} $('arContainer').innerHTML = ''; mind = null; }
   if (previewRenderer){ previewRenderer.setAnimationLoop(null); previewRenderer.dispose(); $('previewContainer').innerHTML = ''; previewRenderer = null; }
   speechSynthesis?.cancel();
@@ -642,6 +647,7 @@ $('btnAR').onclick = async () => {
       a.onTargetFound = () => { a.group.add(creature.group); creature.group.position.set(0, 0.05, 0.3); if (!visible){ visible = true; $('hint').style.display = 'none'; creature.react('hop'); } };
       a.onTargetLost = () => { visible = false; $('hint').style.display = 'block'; };
     }
+    document.documentElement.classList.add('ar'); document.body.classList.add('ar');
     await mind.start();
     const h = showStage(); $('hint').style.display = 'block';
     renderer.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); renderer.render(scene, camera); });
