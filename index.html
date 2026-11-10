@@ -71,7 +71,7 @@
 <body>
 
 <section id="setup">
-  <div class="mono">KDS // Prototype One · build 6</div>
+  <div class="mono">KDS // Prototype One · build 7</div>
   <h1>Wake a spirit</h1>
   <p>Photograph anything (a water bottle, a statue, an old photo of a pet). AI turns it into a 3D body, and a spirit moves in.</p>
 
@@ -273,15 +273,28 @@ function argsFor(info, rules){
     return dflt;
   });
 }
+let fileBase = '';
+function toUrl(v){
+  if (typeof v !== 'string') return null;
+  if (/^https?:\/\//.test(v)) return v;
+  if (/\.(glb|gltf|ply|obj|png|webp|jpe?g|mp4)$/i.test(v) || v.startsWith('/tmp')) return fileBase + v;
+  return null;
+}
 function findFile(x){
-  if (!x) return null;
+  if (x == null) return null;
+  if (typeof x === 'string') return toUrl(x);
   if (Array.isArray(x)){ let any = null; for (const i of x){ const f = findFile(i); if (f && /\.glb/i.test(f)) return f; any = any || f; } return any; }
   if (typeof x === 'object'){
-    if (x.url && typeof x.url === 'string') return x.url;
-    for (const v of Object.values(x)){ const f = findFile(v); if (f) return f; }
+    if (typeof x.url === 'string' && x.url) return x.url;
+    if (typeof x.path === 'string' && x.path) return toUrl(x.path) || fileBase + x.path;
+    let any = null;
+    for (const v of Object.values(x)){ const f = findFile(v); if (f && /\.glb/i.test(f)) return f; any = any || f; }
+    return any;
   }
   return null;
 }
+const peek = x => { try{ return JSON.stringify(x).slice(0, 260); }catch{ return String(x).slice(0, 260); } };
+let lastSeen = {};
 async function run(app, api, name, rules, label){
   const info = api.named_endpoints[name];
   if (!info) throw new Error(`the space has no ${name} step`);
@@ -293,8 +306,10 @@ async function run(app, api, name, rules, label){
       if (m.stage === 'error') throw new Error(m.message || 'the free GPU refused the job');
       const pos = m.position ?? m.queue_position; genStatus(pos > 0 ? `${label}: waiting in line (#${pos})… ${secs}s` : `${label}… ${secs}s`);
     }
-    if (m.type === 'data'){ last = m.data; break; }
+    if (m.type === 'data') last = m.data;
+    if (m.type === 'status' && m.stage === 'complete') break;
   }
+  lastSeen[name] = last;
   return last;
 }
 $('btnGen').onclick = async () => {
@@ -308,6 +323,9 @@ $('btnGen').onclick = async () => {
     const opts = settings.hf ? { hf_token: settings.hf, token: settings.hf } : {};
     const app = await Client.connect(settings.space, opts);
     const api = await app.view_api();
+    const root = (app.config?.root || ('https://' + settings.space.replace('/', '-').replace(/[._]/g, '-').toLowerCase() + '.hf.space')).replace(/\/$/, '');
+    fileBase = root + (app.config?.api_prefix ?? '') + '/file=';
+    lastSeen = { endpoints: Object.keys(api.named_endpoints) };
     const imgBlob = await (await fetch(src)).blob();
     if (api.named_endpoints['/start_session']) await app.predict('/start_session', []).catch(() => {});
     let img = handle_file(imgBlob);
@@ -323,11 +341,11 @@ $('btnGen').onclick = async () => {
       glbUrl = findFile(ex);
     }
     glbUrl = glbUrl || findFile(gen);
-    if (!glbUrl) throw new Error('no 3D file came back');
+    if (!glbUrl) throw new Error('no 3D file came back. Details: ' + peek(lastSeen));
     genStatus('Downloading the 3D body…');
     let resp = await fetch(glbUrl).catch(() => null);
     if ((!resp || !resp.ok) && settings.hf) resp = await fetch(glbUrl, { headers:{ Authorization:'Bearer ' + settings.hf } });
-    if (!resp || !resp.ok) throw new Error('could not download the 3D file');
+    if (!resp || !resp.ok) throw new Error('could not download the 3D file (' + (resp?.status || 'blocked') + ') from ' + glbUrl.slice(0, 120));
     const buf = await resp.arrayBuffer();
     await idb.set('scan', buf); await idb.set('scanName', 'AI model from your photo');
     settings.body = 'ai'; settings.yaw = 0; ls.set(SET_KEY, settings);
@@ -873,7 +891,7 @@ $('btnAR').onclick = async () => {
     const h = showStage();
     $('hint').textContent = 'Point your camera at the object…'; $('hint').style.display = 'block'; $('standBtn').style.display = 'inline-block';
     const fix = () => { try{ mind.resize(); }catch{} const v = mind.video, c = $('arContainer');
-      $('diag').style.display = 'block'; $('diag').textContent = `build 6 · view ${c.clientWidth}x${c.clientHeight} · cam ${v?.videoWidth||0}x${v?.videoHeight||0}`; v?.play?.().catch(() => {}); };
+      $('diag').style.display = 'block'; $('diag').textContent = `build 7 · view ${c.clientWidth}x${c.clientHeight} · cam ${v?.videoWidth||0}x${v?.videoHeight||0}`; v?.play?.().catch(() => {}); };
     setTimeout(fix, 300); setTimeout(fix, 1500);
     r.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); r.render(scene, camera); });
     greet(h);
