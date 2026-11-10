@@ -71,7 +71,7 @@
 <body>
 
 <section id="setup">
-  <div class="mono">KDS // Prototype One · build 5</div>
+  <div class="mono">KDS // Prototype One · build 6</div>
   <h1>Wake a spirit</h1>
   <p>Photograph anything (a water bottle, a statue, an old photo of a pet). AI turns it into a 3D body, and a spirit moves in.</p>
 
@@ -202,7 +202,7 @@ const idb = {
 
 let spirit = ls.get(LS_KEY, null);
 let settings = Object.assign({ key:'', model:'gemini-2.5-flash', tts:true, body:'ai', look:'glow', eyes:false, hf:'', space:'microsoft/TRELLIS.2', yaw:0 }, ls.get(SET_KEY, {}));
-if (settings.body === 'scan') settings.body = 'ai';
+if (settings.body === 'scan' || !settings.migrated6){ settings.body = 'ai'; settings.migrated6 = true; try{ localStorage.setItem(SET_KEY, JSON.stringify(settings)); }catch{} }
 const $ = id => document.getElementById(id);
 function status(t){ const s = $('status'); if (s) s.textContent = t; }
 function genStatus(t){ $('genStatus').textContent = t; }
@@ -341,6 +341,12 @@ $('btnGen').onclick = async () => {
   }finally{ $('btnGen').disabled = false; }
 };
 
+async function needBody(){
+  if (settings.body !== 'ai' || await idb.get('scan')) return false;
+  genStatus('👉 Tap "Make 3D body" first. Your spirit needs its AI body.');
+  $('btnGen').scrollIntoView({ behavior:'smooth', block:'center' });
+  return true;
+}
 /* ================= spirit state ================= */
 function persist(){ ls.set(LS_KEY, spirit); }
 function hoursAway(){ return (Date.now() - (spirit.lastSeen || Date.now())) / 36e5; }
@@ -792,6 +798,7 @@ $('btnFloat').onclick = async () => {
   let motionOK = true;
   try{ if (typeof DeviceOrientationEvent !== 'undefined' && DeviceOrientationEvent.requestPermission) motionOK = (await DeviceOrientationEvent.requestPermission()) === 'granted'; }catch{ motionOK = false; }
   saveForm();
+  if (await needBody()) return;
   try{
     status('Waking the spirit…');
     await loadLibs(false); clock = new THREE.Clock();
@@ -842,7 +849,7 @@ async function getTargetURL(){
   return { url: URL.createObjectURL(new Blob([buf])), count: imgs.length };
 }
 $('btnAR').onclick = async () => {
-  saveForm(); $('btnAR').disabled = true;
+  saveForm(); if (await needBody()) return; $('btnAR').disabled = true;
   try{
     await loadLibs(true); clock = new THREE.Clock(); visible = false;
     const target = await getTargetURL();
@@ -866,7 +873,7 @@ $('btnAR').onclick = async () => {
     const h = showStage();
     $('hint').textContent = 'Point your camera at the object…'; $('hint').style.display = 'block'; $('standBtn').style.display = 'inline-block';
     const fix = () => { try{ mind.resize(); }catch{} const v = mind.video, c = $('arContainer');
-      $('diag').style.display = 'block'; $('diag').textContent = `build 5 · view ${c.clientWidth}x${c.clientHeight} · cam ${v?.videoWidth||0}x${v?.videoHeight||0}`; v?.play?.().catch(() => {}); };
+      $('diag').style.display = 'block'; $('diag').textContent = `build 6 · view ${c.clientWidth}x${c.clientHeight} · cam ${v?.videoWidth||0}x${v?.videoHeight||0}`; v?.play?.().catch(() => {}); };
     setTimeout(fix, 300); setTimeout(fix, 1500);
     r.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); r.render(scene, camera); });
     greet(h);
@@ -878,7 +885,7 @@ $('btnAR').onclick = async () => {
 
 /* --- Preview (no camera) --- */
 $('btnPreview').onclick = async () => {
-  saveForm();
+  saveForm(); if (await needBody()) return;
   try{ status('Waking the spirit…'); await loadLibs(false); clock = new THREE.Clock(); creature = await createSpirit(); }
   catch(err){ status('Could not load: ' + (err.message || err)); return; }
   mode = 'preview';
