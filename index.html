@@ -9,40 +9,46 @@
   :root{--bg:#121414;--panel:rgba(22,24,24,.86);--line:#2c302f;--text:#ecebe6;--mute:#8e938f;--accent:#a6d52b;--warm:#f3c46b}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;overflow:hidden}
+  html.ar,body.ar{background:#000}
   .mono{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
   button{font:inherit;color:inherit;background:#1d201f;border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer}
   button.primary{background:var(--accent);color:#111;border-color:var(--accent);font-weight:600}
   button:disabled{opacity:.45}
-  select{font:inherit;color:var(--text);background:#191b1b;border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
-  input,textarea{font:inherit;color:var(--text);background:#191b1b;border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
-  textarea{resize:vertical;min-height:64px}
+  input,textarea,select{font:inherit;color:var(--text);background:#191b1b;border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
+  textarea{resize:vertical;min-height:60px}
   label{display:block;margin:16px 0 6px}
+  h2{font-size:15px;font-weight:600;margin:28px 0 4px}
   #setup{position:absolute;inset:0;overflow-y:auto;padding:calc(24px + env(safe-area-inset-top)) 20px calc(40px + env(safe-area-inset-bottom))}
   #setup h1{font-weight:600;font-size:26px;margin:8px 0 4px}
-  #setup p{color:var(--mute);line-height:1.5;margin:6px 0}
+  #setup p{color:var(--mute);line-height:1.5;margin:6px 0;font-size:14px}
   .thumbs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
   .thumbs img{width:76px;height:76px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
-  .row{display:flex;gap:10px;margin-top:20px}
+  .row{display:flex;gap:10px;margin-top:14px}
   .row>*{flex:1}
+  .seg{display:flex;gap:6px;margin-top:6px}
+  .seg button{flex:1;padding:10px 6px;font-size:13px}
+  .seg button.on{border-color:var(--accent);color:var(--accent)}
   details{margin-top:20px;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
   summary{cursor:pointer;color:var(--mute)}
-  #status{margin-top:14px;min-height:20px;color:var(--warm);font-size:14px}
-  #stage{position:absolute;inset:0;display:none}
-  #arContainer,#previewContainer{position:absolute;inset:0;overflow:hidden;z-index:0}
-  #stage{z-index:0}
-  body.ar,html.ar{background:#000}
+  .status{margin-top:10px;min-height:20px;color:var(--warm);font-size:14px;line-height:1.4}
+  #stage{position:absolute;inset:0;display:none;z-index:0}
+  #arContainer,#previewContainer,#floatContainer{position:absolute;inset:0;overflow:hidden;z-index:0;display:none}
   #arContainer video{z-index:0 !important}
   #arContainer canvas{z-index:1 !important}
-  #previewContainer{background:radial-gradient(circle at 50% 40%,#2a3a2c,#0e1110 70%);display:none}
+  #floatContainer video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  #floatContainer canvas{position:absolute;inset:0;z-index:1}
+  #previewContainer{background:radial-gradient(circle at 50% 40%,#2a3a2c,#0e1110 70%)}
   #hud{position:absolute;left:0;right:0;top:0;padding:calc(12px + env(safe-area-inset-top)) 14px 10px;display:none;z-index:10;background:linear-gradient(#000a,#0000)}
-  .hudrow{display:flex;align-items:center;gap:10px}
+  .hudrow{display:flex;align-items:center;gap:8px}
+  .hudbtn{padding:6px 10px;border-radius:10px;background:var(--panel);font-size:13px}
   .bar{flex:1;height:6px;background:#ffffff1f;border-radius:4px;overflow:hidden}
   .bar>i{display:block;height:100%;background:var(--accent);transition:width .6s}
   #energy>i{background:var(--warm)}
   #spiritName{font-weight:600;font-size:17px}
   #hint{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);z-index:9;text-align:center;padding:12px 16px;background:var(--panel);border-radius:14px;display:none;max-width:80%}
+  #diag{position:absolute;left:12px;top:calc(110px + env(safe-area-inset-top));z-index:11;font-size:9px;display:none}
   #chat{position:absolute;left:0;right:0;bottom:0;z-index:10;padding:10px 12px calc(12px + env(safe-area-inset-bottom));display:none;background:linear-gradient(#0000,#000c 30%)}
-  #log{max-height:34vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-bottom:8px}
+  #log{max-height:30vh;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-bottom:8px}
   .msg{padding:9px 12px;border-radius:14px;max-width:85%;line-height:1.4;font-size:15px}
   .msg.spirit{background:var(--panel);border:1px solid #a6d52b44;align-self:flex-start}
   .msg.you{background:#2b2f2d;align-self:flex-end}
@@ -52,7 +58,6 @@
   .inputrow{display:flex;gap:8px}
   .inputrow input{flex:1}
   .inputrow button{padding:10px 14px}
-  #menuBtn{padding:6px 10px;border-radius:10px;background:var(--panel)}
 </style>
 <script type="importmap">
 {"imports":{
@@ -65,61 +70,73 @@
 </head>
 <body>
 
-<!-- ============ SETUP ============ -->
 <section id="setup">
-  <div class="mono">KDS // Prototype One · build 4</div>
-  <h1>Wake a shrine spirit</h1>
-  <p>Photograph your sculpture, give its spirit a name, then point your phone at it.</p>
+  <div class="mono">KDS // Prototype One · build 5</div>
+  <h1>Wake a spirit</h1>
+  <p>Photograph anything (a water bottle, a statue, an old photo of a pet). AI turns it into a 3D body, and a spirit moves in.</p>
 
-  <label class="mono">Spirit name</label>
-  <input id="fName" placeholder="e.g. Pip, Old Moss, Saffron">
-
-  <label class="mono">What is the sculpture?</label>
-  <textarea id="fDesc" placeholder="e.g. a small clay owl my grandmother gave me, sits on the bookshelf"></textarea>
-
-  <label class="mono">Personality (optional)</label>
-  <textarea id="fPersona" placeholder="e.g. dramatic, proud, secretly soft-hearted; thinks it's a mighty guardian"></textarea>
-
-  <label class="mono">Photos of the sculpture (1–3)</label>
-  <p style="font-size:13px">Shoot it straight on, well lit, filling the frame. Extra angles help it recognize the sculpture from more sides.</p>
+  <h2>1 · The object</h2>
+  <label class="mono">Photo</label>
+  <p>One clear photo, object centered. Add 1–2 more angles if you'll use "On the object" mode.</p>
   <input id="fPhotos" type="file" accept="image/*" multiple>
   <div class="thumbs" id="thumbs"></div>
 
-  <label class="mono">Spirit body</label>
-  <select id="fBody">
-    <option value="photo">Wire ghost — shaped from your photo</option>
-    <option value="scan">Wire ghost — from a 3D scan (.glb)</option>
-    <option value="wisp">Classic wisp</option>
-  </select>
-  <div id="scanRow" style="display:none">
-    <p style="font-size:13px">For a true 3D shape, scan the sculpture with a free app like Polycam or KIRI Engine, export as <b>.glb</b>, and pick the file here.</p>
-    <input id="fScan" type="file">
-    <div id="scanName" class="mono" style="margin-top:6px"></div>
+  <h2>2 · Its body</h2>
+  <div class="seg" id="segBody">
+    <button data-v="ai">AI 3D model</button>
+    <button data-v="photo">Quick ghost</button>
+    <button data-v="wisp">Wisp</button>
   </div>
-  <label style="display:flex;align-items:center;gap:10px;margin-top:14px"><input id="fEyes" type="checkbox" checked style="width:auto"> Glowing spirit eyes</label>
+  <div id="aiRow">
+    <p>Turns your photo into a full 3D model with Microsoft's free TRELLIS AI. Takes 1–3 minutes; the free servers sometimes have a queue.</p>
+    <div class="row"><button class="primary" id="btnGen">Make 3D body</button></div>
+    <div class="row" style="margin-top:8px"><button id="btnGlb">…or load a .glb</button></div>
+    <input id="fScan" type="file" style="display:none">
+    <div id="genStatus" class="status"></div>
+  </div>
+
+  <label class="mono">Look</label>
+  <div class="seg" id="segLook">
+    <button data-v="glow">Spirit glow</button>
+    <button data-v="wire">Wire ghost</button>
+    <button data-v="real">Natural</button>
+  </div>
+  <label style="display:flex;align-items:center;gap:10px;margin-top:14px"><input id="fEyes" type="checkbox" style="width:auto"> Add spirit eyes <span class="mono">(good for objects, skip for animals)</span></label>
+
+  <h2>3 · Its spirit</h2>
+  <label class="mono">Name</label>
+  <input id="fName" placeholder="e.g. Lola, Old Moss, Captain Bottle">
+  <label class="mono">What is it?</label>
+  <textarea id="fDesc" placeholder="e.g. my childhood dog Biscuit, a golden retriever who loved the lake"></textarea>
+  <label class="mono">Personality (optional)</label>
+  <textarea id="fPersona" placeholder="e.g. dramatic, proud, secretly soft-hearted"></textarea>
+
+  <h2>4 · Wake it</h2>
+  <div class="row"><button class="primary" id="btnFloat">Float in my room</button></div>
+  <div class="row"><button id="btnAR">On the object / photo</button><button id="btnPreview">Preview</button></div>
+  <p style="font-size:12px">"On the object" tracks your photo; it works best on flat, detailed things like drawings, prints and patterned objects.</p>
+  <div id="status" class="status"></div>
 
   <details>
-    <summary>Brain settings (AI)</summary>
-    <p style="font-size:13px">Without a key, the spirit uses simple built-in lines. For real conversation, paste a free Google AI Studio (Gemini) key. It's stored only on this phone.</p>
-    <label class="mono">Gemini API key</label>
-    <input id="fKey" type="password" placeholder="paste key">
-    <label class="mono">Model</label>
+    <summary>Settings</summary>
+    <label class="mono">Gemini API key (spirit's brain)</label>
+    <input id="fKey" type="password" placeholder="free from aistudio.google.com">
+    <label class="mono">Gemini model</label>
     <input id="fModel" value="gemini-2.5-flash">
+    <label class="mono">Hugging Face token (optional, more free 3D runs)</label>
+    <input id="fHf" type="password" placeholder="hf_… free from huggingface.co/settings/tokens">
+    <label class="mono">3D AI space</label>
+    <input id="fSpace" value="microsoft/TRELLIS.2">
+    <p style="font-size:12px">Backup if that one is busy: trellis-community/TRELLIS</p>
+    <label class="mono">Tripo API key (coming later: skeletons + walking)</label>
+    <input id="fTripo" type="password" placeholder="not used yet" disabled>
+    <div class="row"><button id="btnReset">Reset everything</button></div>
   </details>
-
-  <div class="row">
-    <button class="primary" id="btnAR">Start AR</button>
-  </div>
-  <div class="row">
-    <button id="btnPreview">Test without camera</button>
-    <button id="btnReset">Reset spirit</button>
-  </div>
-  <div id="status"></div>
 </section>
 
-<!-- ============ STAGE ============ -->
 <section id="stage">
   <div id="arContainer"></div>
+  <div id="floatContainer"></div>
   <div id="previewContainer"></div>
 </section>
 
@@ -128,15 +145,15 @@
     <span id="spiritName">Spirit</span>
     <span class="mono" id="moodLbl">calm</span>
     <span style="flex:1"></span>
-    <button id="standBtn" style="display:none;padding:6px 10px;border-radius:10px;background:var(--panel);font-size:13px">On wall?</button>
-    <button id="menuBtn">✕</button>
+    <button class="hudbtn" id="turnBtn">↻ Turn</button>
+    <button class="hudbtn" id="standBtn" style="display:none">On wall?</button>
+    <button class="hudbtn" id="menuBtn">✕</button>
   </div>
   <div class="hudrow" style="margin-top:8px"><span class="mono" style="width:54px">Bond</span><div class="bar" id="bond"><i style="width:0"></i></div></div>
   <div class="hudrow" style="margin-top:6px"><span class="mono" style="width:54px">Glow</span><div class="bar" id="energy"><i style="width:0"></i></div></div>
 </div>
-
-<div id="hint">Point your camera at the sculpture…</div>
-<div id="diag" class="mono" style="position:absolute;left:12px;top:calc(110px + env(safe-area-inset-top));z-index:11;font-size:9px;display:none"></div>
+<div id="hint">Point your camera at the object…</div>
+<div id="diag" class="mono"></div>
 
 <div id="chat">
   <div id="log"></div>
@@ -155,120 +172,179 @@
 </div>
 
 <script type="module">
-// Libraries load lazily so the setup screen always works, and any load failure is shown on screen.
-let THREE, MindARThree, GLTFLoader;
+/* ================= libraries (lazy, so setup always works) ================= */
+let THREE, MindARThree, GLTFLoader, Gradio;
 async function loadLibs(withAR){
   if (!THREE) THREE = await import('three');
   if (!GLTFLoader) ({ GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js'));
-  if (withAR && !MindARThree){
-    status('Loading AR engine…');
-    await import('mindar-image');
-    ({ MindARThree } = await import('mindar-image-three'));
-  }
+  if (withAR && !MindARThree){ status('Loading AR engine…'); await import('mindar-image'); ({ MindARThree } = await import('mindar-image-three')); }
 }
-addEventListener('error', e => { const s = document.getElementById('status'); if (s) s.textContent = 'Error: ' + e.message; });
-addEventListener('unhandledrejection', e => { const s = document.getElementById('status'); if (s) s.textContent = 'Error: ' + (e.reason?.message || e.reason); });
+async function loadGradio(){ if (!Gradio) Gradio = await import('https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js'); return Gradio; }
+addEventListener('error', e => status('Error: ' + e.message));
+addEventListener('unhandledrejection', e => status('Error: ' + (e.reason?.message || e.reason)));
 
-/* ---------------- storage ---------------- */
-const LS_KEY = 'shrineSpirit.v1';
-const SET_KEY = 'shrineSpirit.settings';
+/* ================= storage ================= */
+const LS_KEY = 'shrineSpirit.v1', SET_KEY = 'shrineSpirit.settings';
 const ls = {
   get(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch{ return d; } },
   set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} }
 };
-// IndexedDB for the compiled image target (too big for localStorage)
 const idb = {
   db: null,
-  async open(){ if(this.db) return this.db;
-    this.db = await new Promise((res, rej)=>{ const r = indexedDB.open('shrineSpirit', 1);
-      r.onupgradeneeded = ()=> r.result.createObjectStore('kv');
-      r.onsuccess = ()=> res(r.result); r.onerror = ()=> rej(r.error); });
+  async open(){ if (this.db) return this.db;
+    this.db = await new Promise((res, rej) => { const r = indexedDB.open('shrineSpirit', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
     return this.db; },
-  async get(k){ try{ const db = await this.open(); return await new Promise(res=>{ const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(null); }); }catch{ return null; } },
-  async set(k, v){ try{ const db = await this.open(); await new Promise(res=>{ const t = db.transaction('kv','readwrite'); t.objectStore('kv').put(v,k); t.oncomplete=res; t.onerror=res; }); }catch{} },
-  async del(k){ try{ const db = await this.open(); db.transaction('kv','readwrite').objectStore('kv').delete(k); }catch{} }
+  async get(k){ try{ const db = await this.open(); return await new Promise(res => { const q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => res(null); }); }catch{ return null; } },
+  async set(k, v){ try{ const db = await this.open(); await new Promise(res => { const t = db.transaction('kv','readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = res; t.onerror = res; }); }catch{} },
+  async del(k){ try{ const db = await this.open(); await new Promise(res => { const t = db.transaction('kv','readwrite'); t.objectStore('kv').delete(k); t.oncomplete = res; t.onerror = res; }); }catch{} }
 };
 
 let spirit = ls.get(LS_KEY, null);
-let settings = ls.get(SET_KEY, { key:'', model:'gemini-2.5-flash', tts:true });
-
+let settings = Object.assign({ key:'', model:'gemini-2.5-flash', tts:true, body:'ai', look:'glow', eyes:false, hf:'', space:'microsoft/TRELLIS.2', yaw:0 }, ls.get(SET_KEY, {}));
+if (settings.body === 'scan') settings.body = 'ai';
 const $ = id => document.getElementById(id);
-const status = t => $('status').textContent = t;
+function status(t){ const s = $('status'); if (s) s.textContent = t; }
+function genStatus(t){ $('genStatus').textContent = t; }
 
-// prefill setup form
+/* ================= setup form ================= */
 if (spirit){ $('fName').value = spirit.name; $('fDesc').value = spirit.desc; $('fPersona').value = spirit.persona; }
-$('fKey').value = settings.key || '';
-$('fModel').value = settings.model || 'gemini-2.5-flash';
-$('fBody').value = settings.body || 'photo';
-$('fEyes').checked = settings.eyes !== false;
-const syncBody = () => $('scanRow').style.display = $('fBody').value === 'scan' ? 'block' : 'none';
-$('fBody').onchange = syncBody; syncBody();
-idb.get('scanName').then(n => { if (n) $('scanName').textContent = 'Saved scan: ' + n; });
-$('fScan').addEventListener('change', async e => {
-  const f = e.target.files[0]; if (!f) return;
-  if (!/\.(glb|gltf)$/i.test(f.name)){ status('Please pick a .glb file.'); return; }
-  await idb.set('scan', await f.arrayBuffer()); await idb.set('scanName', f.name);
-  $('scanName').textContent = 'Saved scan: ' + f.name; status('');
-});
+$('fKey').value = settings.key; $('fModel').value = settings.model; $('fHf').value = settings.hf; $('fSpace').value = settings.space;
+$('fEyes').checked = !!settings.eyes;
+function seg(id, key, after){
+  const el = $(id);
+  const paint = () => el.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === settings[key]));
+  el.querySelectorAll('button').forEach(b => b.onclick = () => { settings[key] = b.dataset.v; ls.set(SET_KEY, settings); paint(); after?.(); });
+  paint();
+}
+seg('segBody', 'body', () => $('aiRow').style.display = settings.body === 'ai' ? 'block' : 'none');
+seg('segLook', 'look');
+$('aiRow').style.display = settings.body === 'ai' ? 'block' : 'none';
+idb.get('scanName').then(n => { if (n) genStatus('✓ 3D body ready: ' + n); });
 
-/* ---------------- photos -> image targets ---------------- */
 let photoImgs = [];
 $('fPhotos').addEventListener('change', async e => {
   const files = [...e.target.files].slice(0, 3);
   photoImgs = []; $('thumbs').innerHTML = '';
-  for (const f of files){
-    const img = await downscale(f, 900);
-    photoImgs.push(img);
-    const t = new Image(); t.src = img.src; $('thumbs').appendChild(t);
-  }
-  if (photoImgs[0]) await idb.set('bodyPhoto', photoImgs[0].src);
+  for (const f of files){ const img = await downscale(f, 1024); photoImgs.push(img); const t = new Image(); t.src = img.src; $('thumbs').appendChild(t); }
+  if (photoImgs[0]){ await idb.set('bodyPhoto', photoImgs[0].src); await idb.del('target'); }
   status(photoImgs.length ? `${photoImgs.length} photo${photoImgs.length>1?'s':''} ready.` : '');
 });
 function downscale(file, max){
-  return new Promise(res=>{
+  return new Promise(res => {
     const url = URL.createObjectURL(file); const src = new Image();
-    src.onload = ()=>{
+    src.onload = () => {
       const s = Math.min(1, max / Math.max(src.width, src.height));
       const c = document.createElement('canvas'); c.width = Math.round(src.width*s); c.height = Math.round(src.height*s);
       c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
-      const out = new Image(); out.onload = ()=>res(out); out.src = c.toDataURL('image/jpeg', .9);
+      const out = new Image(); out.onload = () => res(out); out.src = c.toDataURL('image/jpeg', .92);
       URL.revokeObjectURL(url);
     };
     src.src = url;
   });
 }
-async function getTargetURL(){
-  if (photoImgs.length){
-    status('Learning what your sculpture looks like… (10–40 sec)');
-    const compiler = new window.MINDAR.IMAGE.Compiler();
-    await compiler.compileImageTargets(photoImgs, p => status(`Learning your sculpture… ${Math.round(p)}%`));
-    const buf = await compiler.exportData();
-    await idb.set('target', buf); await idb.set('targetCount', photoImgs.length);
-    photoImgs = [];
-    return { url: URL.createObjectURL(new Blob([buf])), count: await idb.get('targetCount') };
-  }
-  const saved = await idb.get('target');
-  if (saved) return { url: URL.createObjectURL(new Blob([saved])), count: (await idb.get('targetCount')) || 1 };
-  return null;
-}
+function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
 
-/* ---------------- spirit state ---------------- */
+$('btnGlb').onclick = () => $('fScan').click();
+$('fScan').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  if (!/\.glb$/i.test(f.name)){ genStatus('Please pick a .glb file.'); return; }
+  await idb.set('scan', await f.arrayBuffer()); await idb.set('scanName', f.name);
+  settings.body = 'ai'; ls.set(SET_KEY, settings); genStatus('✓ 3D body ready: ' + f.name);
+});
+
 function saveForm(){
-  settings.key = $('fKey').value.trim(); settings.model = $('fModel').value.trim() || 'gemini-2.5-flash';
-  settings.body = $('fBody').value; settings.eyes = $('fEyes').checked;
+  Object.assign(settings, { key:$('fKey').value.trim(), model:$('fModel').value.trim() || 'gemini-2.5-flash', hf:$('fHf').value.trim(), space:$('fSpace').value.trim() || 'microsoft/TRELLIS.2', eyes:$('fEyes').checked });
   ls.set(SET_KEY, settings);
   const name = $('fName').value.trim() || 'Pip';
   if (!spirit) spirit = { name, desc:'', persona:'', bond:5, energy:70, lastSeen:Date.now(), born:Date.now(), memories:[], history:[], offerCooldown:{} };
   spirit.name = name; spirit.desc = $('fDesc').value.trim(); spirit.persona = $('fPersona').value.trim();
   ls.set(LS_KEY, spirit);
 }
+
+/* ================= photo -> 3D model (free TRELLIS on Hugging Face) ================= */
+// Fills an endpoint's parameters from the space's own API description, so it keeps working if the space changes.
+const DEF = Symbol('default');
+function argsFor(info, rules){
+  return info.parameters.map(p => {
+    const n = (p.parameter_name || p.label || '').toLowerCase();
+    const dflt = p.parameter_has_default ? p.parameter_default : null;
+    for (const [re, v] of rules) if (re.test(n)) return v === DEF ? dflt : v;
+    return dflt;
+  });
+}
+function findFile(x){
+  if (!x) return null;
+  if (Array.isArray(x)){ let any = null; for (const i of x){ const f = findFile(i); if (f && /\.glb/i.test(f)) return f; any = any || f; } return any; }
+  if (typeof x === 'object'){
+    if (x.url && typeof x.url === 'string') return x.url;
+    for (const v of Object.values(x)){ const f = findFile(v); if (f) return f; }
+  }
+  return null;
+}
+async function run(app, api, name, rules, label){
+  const info = api.named_endpoints[name];
+  if (!info) throw new Error(`the space has no ${name} step`);
+  const t0 = Date.now(); let last = null;
+  const job = app.submit(name, argsFor(info, rules));
+  for await (const m of job){
+    const secs = Math.round((Date.now() - t0) / 1000);
+    if (m.type === 'status'){
+      if (m.stage === 'error') throw new Error(m.message || 'the free GPU refused the job');
+      const pos = m.position ?? m.queue_position; genStatus(pos > 0 ? `${label}: waiting in line (#${pos})… ${secs}s` : `${label}… ${secs}s`);
+    }
+    if (m.type === 'data'){ last = m.data; break; }
+  }
+  return last;
+}
+$('btnGen').onclick = async () => {
+  saveForm();
+  const src = await idb.get('bodyPhoto');
+  if (!src){ genStatus('Add a photo first (step 1).'); return; }
+  $('btnGen').disabled = true;
+  try{
+    genStatus('Connecting to the free 3D AI…');
+    const { Client, handle_file } = await loadGradio();
+    const opts = settings.hf ? { hf_token: settings.hf, token: settings.hf } : {};
+    const app = await Client.connect(settings.space, opts);
+    const api = await app.view_api();
+    const imgBlob = await (await fetch(src)).blob();
+    if (api.named_endpoints['/start_session']) await app.predict('/start_session', []).catch(() => {});
+    let img = handle_file(imgBlob);
+    if (api.named_endpoints['/preprocess_image']){
+      const pre = await run(app, api, '/preprocess_image', [[/image/, img]], 'Cutting out the object');
+      const u = findFile(pre); if (u) img = handle_file(await (await fetch(u)).blob());
+    }
+    let seed = Math.floor(Math.random() * 99999);
+    const gen = await run(app, api, '/image_to_3d', [[/is_multi/, false], [/algo/, DEF], [/multiimage/, []], [/seed/, seed], [/image/, img]], 'Sculpting in 3D');
+    let glbUrl = null;
+    if (api.named_endpoints['/extract_glb']){
+      const ex = await run(app, api, '/extract_glb', [[/decimation|face/, 60000], [/texture_size/, 1024], [/simplify/, 0.95]], 'Painting textures');
+      glbUrl = findFile(ex);
+    }
+    glbUrl = glbUrl || findFile(gen);
+    if (!glbUrl) throw new Error('no 3D file came back');
+    genStatus('Downloading the 3D body…');
+    let resp = await fetch(glbUrl).catch(() => null);
+    if ((!resp || !resp.ok) && settings.hf) resp = await fetch(glbUrl, { headers:{ Authorization:'Bearer ' + settings.hf } });
+    if (!resp || !resp.ok) throw new Error('could not download the 3D file');
+    const buf = await resp.arrayBuffer();
+    await idb.set('scan', buf); await idb.set('scanName', 'AI model from your photo');
+    settings.body = 'ai'; settings.yaw = 0; ls.set(SET_KEY, settings);
+    genStatus('✓ 3D body ready! Tap Preview to meet it.');
+  }catch(err){
+    console.error(err);
+    const m = String(err?.message || err);
+    genStatus(/quota|exceeded|gpu|zero/i.test(m)
+      ? 'The free GPU limit is used up for now. Add a free Hugging Face token in Settings, or try again later. (' + m + ')'
+      : 'Could not make the 3D body: ' + m + '. Try again, or switch the 3D AI space in Settings.');
+  }finally{ $('btnGen').disabled = false; }
+};
+
+/* ================= spirit state ================= */
 function persist(){ ls.set(LS_KEY, spirit); }
 function hoursAway(){ return (Date.now() - (spirit.lastSeen || Date.now())) / 36e5; }
-function applyTimeAway(){
-  const h = hoursAway();
-  spirit.energy = Math.max(5, spirit.energy - h * 2);   // fades ~2/hr while you're gone
-  return h;
-}
+function applyTimeAway(){ const h = hoursAway(); spirit.energy = Math.max(5, spirit.energy - h * 2); return h; }
 function updateHUD(){
   $('spiritName').textContent = spirit.name;
   $('bond').firstElementChild.style.width = Math.min(100, spirit.bond) + '%';
@@ -276,10 +352,8 @@ function updateHUD(){
 }
 function bondTitle(b){ return b < 15 ? 'curious stranger' : b < 35 ? 'new friend' : b < 60 ? 'trusted companion' : b < 85 ? 'bonded guardian' : 'soul-tied'; }
 
-/* ---------------- 3D spirit ---------------- */
-const MOODS = {
-  calm:{c:0x7fe0c4}, happy:{c:0xffd36b}, sassy:{c:0xff7ab8}, sad:{c:0x6f9bff}, sleepy:{c:0xb9a6ff}, proud:{c:0xffa04d}, curious:{c:0xa6d52b}
-};
+/* ================= 3D spirit ================= */
+const MOODS = { calm:0x7fe0c4, happy:0xffd36b, sassy:0xff7ab8, sad:0x6f9bff, sleepy:0xb9a6ff, proud:0xffa04d, curious:0xa6d52b };
 let _glowTex = null;
 function glowTexture(){
   if (_glowTex) return _glowTex;
@@ -288,9 +362,7 @@ function glowTexture(){
   gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(.35,'rgba(255,255,255,.35)'); gr.addColorStop(1,'rgba(255,255,255,0)');
   g.fillStyle = gr; g.fillRect(0,0,128,128); return (_glowTex = new THREE.CanvasTexture(c));
 }
-function loadImg(src){ return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
 
-/* --- Shape the sculpture's silhouette from a photo, then inflate it into a 3D mesh --- */
 function silhouetteMask(img, MAX = 72){
   const s = MAX / Math.max(img.width, img.height);
   const W = Math.max(8, Math.round(img.width * s)), H = Math.max(8, Math.round(img.height * s));
@@ -373,119 +445,172 @@ function inflateMask({ mask, W, H }){
   const eyeAt = x => { const xi = Math.round(x), zi = idx[ey*W+xi]; return new THREE.Vector3((xi - W/2)*sc, (H/2 - ey)*sc, (zi>=0 ? pos[zi*3+2] : depth*.6) + 0.02); };
   return { geo, eyes:[eyeAt(cx - spread), eyeAt(cx + spread)], height:(maxY-minY)*sc };
 }
-async function bodyFromScan(buf){
+
+
+/* --- "puppet" deformer: makes any rigid mesh breathe, sway, nod its head and wag its back end --- */
+function makeUniforms(b){
+  return { uBreath:{value:0}, uLean:{value:0}, uNod:{value:0}, uWag:{value:0},
+    uMinY:{value:b.min.y}, uH:{value:b.max.y-b.min.y}, uMinZ:{value:b.min.z}, uD:{value:Math.max(.001,b.max.z-b.min.z)}, uPivot:{value:b.min.y + (b.max.y-b.min.y)*0.62} };
+}
+function addDeform(mat, U, shell = 0){
+  const uni = Object.assign({}, U, { uShell:{ value: shell } });
+  mat.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, uni);
+    sh.vertexShader = 'uniform float uBreath,uLean,uNod,uWag,uMinY,uH,uMinZ,uD,uPivot,uShell;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+      float yn = clamp((position.y - uMinY) / uH, 0.0, 1.0);
+      float zn = clamp((position.z - uMinZ) / uD, 0.0, 1.0);
+      transformed += normal * (uBreath + uShell);
+      transformed.x += uLean * yn * yn;
+      float hw = smoothstep(0.62, 0.9, yn);
+      float a = uNod * hw;
+      float py = transformed.y - uPivot, pz = transformed.z;
+      transformed.y = uPivot + py * cos(a) - pz * sin(a);
+      transformed.z = py * sin(a) + pz * cos(a);
+      transformed.x += uWag * (1.0 - smoothstep(0.0, 0.35, zn)) * (0.3 + yn);
+    `);
+  };
+  mat.customProgramCacheKey = () => 'deform' + shell;
+  return mat;
+}
+async function bodyFromGLB(buf, tint, look){
   const gltf = await new Promise((res, rej) => new GLTFLoader().parse(buf, '', res, rej));
   const root = gltf.scene; root.updateMatrixWorld(true);
   const box = new THREE.Box3().setFromObject(root), size = box.getSize(new THREE.Vector3()), ctr = box.getCenter(new THREE.Vector3());
-  const s = 1.25 / Math.max(size.x, size.y, size.z);
-  const geos = [];
-  root.traverse(o => { if (o.isMesh){ const g = o.geometry.clone(); g.applyMatrix4(o.matrixWorld); g.translate(-ctr.x, -ctr.y, -ctr.z); g.scale(s, s, s); geos.push(g); } });
-  const top = size.y * s / 2, front = size.z * s / 2;
-  return { geos, eyes:[new THREE.Vector3(-0.09, top*0.6, front), new THREE.Vector3(0.09, top*0.6, front)], height:size.y*s };
+  const s = 1.2 / Math.max(size.x, size.y, size.z);
+  const yawM = new THREE.Matrix4().makeRotationY((settings.yaw || 0) * Math.PI / 2);
+  const parts = [];
+  root.traverse(o => { if (o.isMesh){
+    const g = o.geometry.clone(); g.applyMatrix4(o.matrixWorld); g.translate(-ctr.x, -ctr.y, -ctr.z); g.scale(s, s, s); g.applyMatrix4(yawM);
+    if (!g.attributes.normal) g.computeVertexNormals();
+    parts.push({ g, m: Array.isArray(o.material) ? o.material[0] : o.material });
+  }});
+  const b = new THREE.Box3(); parts.forEach(p => { p.g.computeBoundingBox(); b.union(p.g.boundingBox); });
+  const U = makeUniforms(b), h = b.max.y - b.min.y;
+  const group = new THREE.Group(), solids = [];
+  for (const { g, m } of parts){
+    const mat = new THREE.MeshStandardMaterial({ map: m?.map || null, color: m?.color || 0xffffff, roughness: .75, metalness: 0, transparent: look === 'wire', opacity: look === 'wire' ? .18 : 1 });
+    if (look !== 'real'){ mat.emissive = new THREE.Color(MOODS.calm); mat.emissiveIntensity = .12; tint.push({ emissive: mat }); }
+    const mesh = new THREE.Mesh(g, addDeform(mat, U)); group.add(mesh); solids.push(mesh);
+    if (look === 'glow'){
+      const shell = new THREE.MeshBasicMaterial({ color: MOODS.calm, transparent: true, opacity: .32, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false });
+      group.add(new THREE.Mesh(g, addDeform(shell, U, h * 0.025))); tint.push(shell);
+    }
+    if (look === 'wire'){
+      const wire = new THREE.MeshBasicMaterial({ color: MOODS.calm, wireframe: true, transparent: true, opacity: .55, blending: THREE.AdditiveBlending, depthWrite: false });
+      group.add(new THREE.Mesh(g, addDeform(wire, U))); tint.push(wire);
+    }
+  }
+  // find the front surface for optional eyes
+  const ray = new THREE.Raycaster(), eyeY = b.min.y + h * 0.8, eyes = [];
+  for (const x of [-0.08, 0.08]){
+    ray.set(new THREE.Vector3(x, eyeY, 5), new THREE.Vector3(0, 0, -1));
+    const hit = ray.intersectObjects(solids)[0];
+    eyes.push(new THREE.Vector3(x, eyeY, hit ? hit.point.z + 0.01 : b.max.z));
+  }
+  return { group, U, h, eyes, deform: true, ghost: look !== 'real' };
 }
-
-/* --- wire-ghost look: glowing wire lines + faint translucent fill + sparkle points --- */
-function ghostParts(geos, tint){
+function bodyFromPhotoGhost(r, tint){
   const g = new THREE.Group();
-  const lineMat = new THREE.LineBasicMaterial({ color:0xffffff, transparent:true, opacity:.8, blending:THREE.AdditiveBlending, depthWrite:false });
-  const fillMat = new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:.10, side:THREE.DoubleSide, blending:THREE.AdditiveBlending, depthWrite:false });
-  const ptMat = new THREE.PointsMaterial({ map:glowTexture(), size:0.035, transparent:true, opacity:.9, blending:THREE.AdditiveBlending, depthWrite:false });
-  for (const geo of geos){
-    const tris = (geo.index ? geo.index.count : geo.attributes.position.count) / 3;
-    const wire = tris > 30000 ? new THREE.EdgesGeometry(geo, 12) : new THREE.WireframeGeometry(geo);
-    g.add(new THREE.LineSegments(wire, lineMat), new THREE.Mesh(geo, fillMat));
-    const p = geo.attributes.position, step = Math.max(1, Math.floor(p.count / 400)), arr = [];
-    for (let i = 0; i < p.count; i += step) arr.push(p.getX(i), p.getY(i), p.getZ(i));
-    const pg = new THREE.BufferGeometry(); pg.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
-    g.add(new THREE.Points(pg, ptMat));
-  }
-  tint.push(lineMat, fillMat, ptMat);
-  return { group:g, lineMat, fillMat };
+  const line = new THREE.LineBasicMaterial({ color: MOODS.calm, transparent: true, opacity: .8, blending: THREE.AdditiveBlending, depthWrite: false });
+  const fill = new THREE.MeshBasicMaterial({ color: MOODS.calm, transparent: true, opacity: .1, side: THREE.DoubleSide, blending: THREE.AdditiveBlending, depthWrite: false });
+  g.add(new THREE.LineSegments(new THREE.WireframeGeometry(r.geo), line), new THREE.Mesh(r.geo, fill));
+  tint.push(line, fill);
+  return { group: g, eyes: r.eyes, h: r.height, ghost: true, lineMat: line };
 }
-
-async function buildBody(kind, tint){
-  if (kind === 'scan'){
-    const buf = await idb.get('scan');
-    if (buf){ try{ const r = await bodyFromScan(buf); return { ...ghostParts(r.geos, tint), eyes:r.eyes, height:r.height, ghost:true }; }
-      catch(e){ addMsg('sys', 'Could not read the 3D scan, using your photo instead.'); } }
-    kind = 'photo';
-  }
-  if (kind === 'photo'){
-    const src = await idb.get('bodyPhoto');
-    if (src){ const r = inflateMask(silhouetteMask(await loadImg(src))); return { ...ghostParts([r.geo], tint), eyes:r.eyes, height:r.height, ghost:true }; }
-  }
-  // classic wisp
+function bodyWisp(tint){
   const g = new THREE.Group();
-  const mat = new THREE.MeshStandardMaterial({ color:0xffffff, emissive:MOODS.calm.c, emissiveIntensity:.9, roughness:.4, transparent:true, opacity:.92 });
-  const pts = []; for (let i=0;i<=20;i++){ const t=i/20; pts.push(new THREE.Vector2(Math.sin(Math.PI*t)*(0.5+0.5*(1-t))*0.55, -0.55 + t*1.15)); }
+  const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: MOODS.calm, emissiveIntensity: .9, roughness: .4, transparent: true, opacity: .92 });
+  const pts = []; for (let i = 0; i <= 20; i++){ const t = i/20; pts.push(new THREE.Vector2(Math.sin(Math.PI*t)*(0.5+0.5*(1-t))*0.55, -0.55 + t*1.15)); }
   g.add(new THREE.Mesh(new THREE.LatheGeometry(pts, 32), mat));
   const leafGeo = new THREE.SphereGeometry(0.16, 16, 12); leafGeo.scale(0.45, 1.3, 0.25);
-  const leafMat = new THREE.MeshStandardMaterial({ color:0xa6d52b, emissive:0x3d5a10, roughness:.6 });
-  const earL = new THREE.Mesh(leafGeo, leafMat), earR = earL.clone();
-  earL.position.set(-0.2, 0.62, 0); earL.rotation.z = 0.5; earR.position.set(0.2, 0.62, 0); earR.rotation.z = -0.5; g.add(earL, earR);
-  tint.push({ wisp: mat });
-  return { group:g, eyes:[new THREE.Vector3(-0.15, 0.12, 0.4), new THREE.Vector3(0.15, 0.12, 0.4)], height:1.15, ears:[earL, earR], ghost:false };
+  const leafMat = new THREE.MeshStandardMaterial({ color: 0xa6d52b, emissive: 0x3d5a10, roughness: .6 });
+  const L = new THREE.Mesh(leafGeo, leafMat), R = L.clone();
+  L.position.set(-0.2, 0.62, 0); L.rotation.z = 0.5; R.position.set(0.2, 0.62, 0); R.rotation.z = -0.5; g.add(L, R);
+  tint.push({ emissive: mat, full: true });
+  return { group: g, eyes: [new THREE.Vector3(-0.15, 0.12, 0.4), new THREE.Vector3(0.15, 0.12, 0.4)], h: 1.15, ears: [L, R], ghost: false, forceEyes: true };
+}
+async function buildBody(tint){
+  if (settings.body === 'ai'){
+    const buf = await idb.get('scan');
+    if (buf){ try{ return await bodyFromGLB(buf, tint, settings.look); }catch(e){ console.error(e); addMsg('sys', 'Could not read the 3D body; using a quick ghost instead.'); } }
+    else addMsg('sys', 'No 3D body yet — tap "Make 3D body" in setup. Using a quick ghost for now.');
+  }
+  if (settings.body !== 'wisp'){
+    const src = await idb.get('bodyPhoto');
+    if (src) return bodyFromPhotoGhost(inflateMask(silhouetteMask(await loadImg(src))), tint);
+  }
+  return bodyWisp(tint);
 }
 
 async function createSpirit(){
-  const root = new THREE.Group();
-  const body = new THREE.Group(); root.add(body);
+  const root = new THREE.Group(), body = new THREE.Group(); root.add(body);
   const tint = [];
-  const parts = await buildBody(settings.body || 'photo', tint);
+  const parts = await buildBody(tint);
   body.add(parts.group);
-  // eyes
+  // eyes ride on a "head" pivot so they nod with the body
+  const head = new THREE.Group(); head.position.y = parts.U ? parts.U.uPivot.value : 0; body.add(head);
   const eyes = [];
-  if (settings.eyes !== false){
+  if (settings.eyes || parts.forceEyes){
     for (const p of parts.eyes){
-      const e = new THREE.Group(); e.position.copy(p);
-      const ball = new THREE.Mesh(new THREE.SphereGeometry(parts.ghost ? 0.045 : 0.075, 16, 12),
-        new THREE.MeshBasicMaterial({ color: parts.ghost ? 0xffffff : 0x141414 }));
-      e.add(ball);
-      if (parts.ghost){ const s = new THREE.Sprite(new THREE.SpriteMaterial({ map:glowTexture(), transparent:true, blending:THREE.AdditiveBlending, depthWrite:false })); s.scale.set(.22,.22,1); e.add(s); tint.push(s.material); }
-      else { const hi = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), new THREE.MeshBasicMaterial({ color:0xffffff })); hi.position.set(0.025,0.03,0.06); e.add(hi); }
-      body.add(e); eyes.push(e);
+      const e = new THREE.Group(); e.position.set(p.x, p.y - head.position.y, p.z);
+      const dark = !parts.ghost;
+      e.add(new THREE.Mesh(new THREE.SphereGeometry(dark ? 0.075 : 0.045, 16, 12), new THREE.MeshBasicMaterial({ color: dark ? 0x141414 : 0xffffff })));
+      if (!dark){ const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture(), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })); s.scale.set(.2, .2, 1); e.add(s); tint.push(s.material); }
+      else { const hi = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), new THREE.MeshBasicMaterial({ color: 0xffffff })); hi.position.set(0.025, 0.03, 0.06); e.add(hi); }
+      head.add(e); eyes.push(e);
     }
   }
-  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map:glowTexture(), transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, opacity:.6 }));
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTexture(), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: .5 }));
   glow.scale.set(2.2, 2.2, 1); root.add(glow); tint.push(glow.material);
-  const N = 40, mg = new THREE.BufferGeometry(), mp = new Float32Array(N*3), seeds = [];
-  for (let i=0;i<N;i++) seeds.push({ r:0.6+Math.random()*0.5, s:0.4+Math.random(), o:Math.random()*6.28, y:(Math.random()-.5)*1.2 });
+  const N = 36, mg = new THREE.BufferGeometry(), mp = new Float32Array(N*3), seeds = [];
+  for (let i = 0; i < N; i++) seeds.push({ r: 0.6 + Math.random()*0.5, s: 0.4 + Math.random(), o: Math.random()*6.28, y: (Math.random()-.5)*1.2 });
   mg.setAttribute('position', new THREE.BufferAttribute(mp, 3));
-  const motesMat = new THREE.PointsMaterial({ map:glowTexture(), size:0.09, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending });
+  const motesMat = new THREE.PointsMaterial({ map: glowTexture(), size: 0.08, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
   root.add(new THREE.Points(mg, motesMat)); tint.push(motesMat);
-  const light = new THREE.PointLight(MOODS.calm.c, 1.5, 4); root.add(light);
+  root.add(new THREE.HemisphereLight(0xffffff, 0x445544, 1.1));
+  const key = new THREE.DirectionalLight(0xffffff, 1.4); key.position.set(1, 2, 2); root.add(key);
+  const light = new THREE.PointLight(MOODS.calm, 1.2, 4); root.add(light);
 
-  let mood = 'calm', target = new THREE.Color(MOODS.calm.c), cur = new THREE.Color(MOODS.calm.c);
+  let mood = 'calm', target = new THREE.Color(MOODS.calm), cur = new THREE.Color(MOODS.calm);
   let hop = 0, spin = 0, nextBlink = 2, blink = 0;
+  const H = parts.h || 1;
   return {
     group: root,
-    setMood(m){ if (!MOODS[m]) m = 'calm'; mood = m; target.set(MOODS[m].c); $('moodLbl').textContent = m; },
+    setMood(m){ if (!MOODS[m]) m = 'calm'; mood = m; target.set(MOODS[m]); $('moodLbl').textContent = m; },
     react(kind){ if (kind === 'hop') hop = 1; if (kind === 'spin') spin = 1; },
     update(t, dt, energy){
       cur.lerp(target, Math.min(1, dt*3));
-      for (const m of tint){ if (m.wisp){ m.wisp.emissive.copy(cur); m.wisp.emissiveIntensity = 0.35 + energy/100*0.75; } else m.color.copy(cur); }
+      for (const m of tint){ if (m.emissive){ m.emissive.emissive.copy(cur); m.emissive.emissiveIntensity = m.full ? 0.35 + energy/100*0.75 : 0.06 + energy/100*0.14; } else m.color.copy(cur); }
       light.color.copy(cur);
-      const e = energy/100;
-      glow.material.opacity = 0.25 + e*0.5;
-      if (parts.ghost){ // wire flickers like a signal, brighter with more glow
-        parts.lineMat.opacity = (0.35 + e*0.6) * (0.85 + 0.15*Math.sin(t*9) * Math.sin(t*2.3));
-        parts.fillMat.opacity = 0.05 + e*0.1 + 0.03*Math.sin(t*2);
-      }
-      const sleepy = mood === 'sleepy' || energy < 20;
-      const bobSpeed = sleepy ? 1.1 : 2.2;
+      const e = energy / 100, sleepy = mood === 'sleepy' || energy < 20, talking = performance.now() < talkingUntil;
+      glow.material.opacity = 0.15 + e*0.4;
+      if (parts.lineMat) parts.lineMat.opacity = (0.35 + e*0.6) * (0.85 + 0.15*Math.sin(t*9)*Math.sin(t*2.3));
+      const bob = sleepy ? 1.1 : 2.2;
       hop = Math.max(0, hop - dt*1.6); spin = Math.max(0, spin - dt*1.2);
-      body.position.y = Math.sin(t*bobSpeed)*0.06 + Math.sin(hop*Math.PI)*0.35;
-      body.rotation.y = Math.sin(t*0.7)*0.25 + (spin > 0 ? (1-spin)*Math.PI*2 : 0);
-      body.rotation.z = mood === 'sassy' ? Math.sin(t*3)*0.12 : mood === 'sad' ? 0.08 : Math.sin(t*1.3)*0.04;
-      body.rotation.x = mood === 'sad' ? 0.15 : mood === 'proud' ? -0.12 : 0;
-      const sq = 1 + Math.sin(t*bobSpeed*2)*0.03 + Math.sin(hop*Math.PI)*0.08; body.scale.set(1/Math.sqrt(sq), sq, 1/Math.sqrt(sq));
+      body.position.y = Math.sin(t*bob)*0.05 + Math.sin(hop*Math.PI)*0.35;
+      body.rotation.y = Math.sin(t*0.6)*0.2 + (spin > 0 ? (1-spin)*Math.PI*2 : 0);
+      body.rotation.z = mood === 'sassy' ? Math.sin(t*3)*0.1 : Math.sin(t*1.3)*0.03;
+      const sq = 1 + Math.sin(t*bob*2)*0.02 + Math.sin(hop*Math.PI)*0.08; body.scale.set(1/Math.sqrt(sq), sq, 1/Math.sqrt(sq));
+      // puppet motion
+      let nod = 0.08*Math.sin(t*1.4) + (mood === 'sad' ? 0.35 : 0) + (mood === 'proud' ? -0.15 : 0) + (sleepy ? 0.25 : 0) + (mood === 'curious' ? 0.12*Math.sin(t*0.9) : 0);
+      if (talking) nod += 0.07*Math.sin(t*13) + 0.04*Math.sin(t*7.3);
+      if (mood === 'happy') nod += 0.08*Math.sin(t*6);
+      const lean = H * (0.05*Math.sin(t*0.9) * (mood === 'sassy' ? 2.5 : 1));
+      if (parts.U){
+        const U = parts.U;
+        U.uBreath.value = H * 0.008 * Math.sin(t*(sleepy ? 1.2 : 2.4));
+        U.uLean.value = lean;
+        U.uNod.value = nod;
+        U.uWag.value = H * Math.sin(t*(mood === 'happy' ? 14 : 5)) * (mood === 'happy' ? 0.06 : mood === 'sad' ? 0.005 : 0.02);
+      }
+      head.rotation.x = nod; head.position.x = lean * 0.7;
       if (parts.ears){ const [L, R] = parts.ears; L.rotation.z = 0.5 + Math.sin(t*2.6)*0.12 + (mood==='sad'?0.6:0); R.rotation.z = -0.5 - Math.sin(t*2.6+1)*0.12 - (mood==='sad'?0.6:0); }
       nextBlink -= dt; if (nextBlink < 0){ blink = 0.15; nextBlink = 2 + Math.random()*3; }
       blink = Math.max(0, blink - dt);
       const lid = sleepy ? 0.25 : (blink > 0 ? 0.1 : (mood === 'happy' ? 0.55 : 1));
       for (const ey of eyes) ey.scale.y = lid;
       const pa = mg.attributes.position.array;
-      seeds.forEach((s,i)=>{ const a = s.o + t*s.s*(sleepy?0.4:1); pa[i*3]=Math.cos(a)*s.r; pa[i*3+1]=s.y+Math.sin(t*s.s+s.o)*0.15; pa[i*3+2]=Math.sin(a)*s.r; });
+      seeds.forEach((s, i) => { const a = s.o + t*s.s*(sleepy ? 0.4 : 1); pa[i*3] = Math.cos(a)*s.r; pa[i*3+1] = s.y + Math.sin(t*s.s + s.o)*0.15; pa[i*3+2] = Math.sin(a)*s.r; });
       mg.attributes.position.needsUpdate = true;
     }
   };
@@ -552,15 +677,18 @@ function parseReply(raw){
 }
 
 /* ---------------- chat ui ---------------- */
-let creature = null, thinking = false;
+let creature = null, thinking = false, talkingUntil = 0;
 function addMsg(who, text){
   const d = document.createElement('div'); d.className = 'msg ' + who; d.textContent = text;
   $('log').appendChild(d); $('log').scrollTop = 1e6;
 }
 function speak(text){
+  talkingUntil = performance.now() + Math.min(6000, 400 + text.length * 55); // mouth/head motion while "speaking"
   if (!settings.tts || !('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text); u.pitch = 1.45; u.rate = 1.05; speechSynthesis.speak(u);
+  const u = new SpeechSynthesisUtterance(text); u.pitch = 1.45; u.rate = 1.05;
+  u.onend = () => talkingUntil = 0;
+  speechSynthesis.speak(u);
 }
 async function spiritSays(userText){
   if (thinking) return; thinking = true;
@@ -603,22 +731,15 @@ $('micBtn').onclick = () => {
   rec.start();
 };
 
-/* ---------------- stage control ---------------- */
-let mind = null, previewRenderer = null, clock = null, visible = false, mount = null;
-function applyStand(){
-  if (!mount || !creature) return;
-  const stand = settings.stand !== false; // default: drawing lies flat, spirit rises out of it
-  mount.rotation.x = stand ? Math.PI/2 : 0;
-  creature.group.position.set(0, stand ? 0.32 : 0.05, stand ? 0 : 0.3);
-  $('standBtn').textContent = stand ? 'On wall?' : 'On table?';
-}
-$('standBtn').onclick = () => { settings.stand = settings.stand === false; ls.set(SET_KEY, settings); applyStand(); };
+
+
+/* ================= stages ================= */
+let mind = null, renderer = null, clock = null, visible = false, mount = null, stream = null, mode = null, orient = null;
 function showStage(){
   $('setup').style.display = 'none'; $('stage').style.display = 'block';
   $('hud').style.display = 'block'; $('chat').style.display = 'block';
   const h = applyTimeAway(); spirit.lastSeen = Date.now(); persist(); updateHUD();
-  $('log').innerHTML = '';
-  addMsg('sys', `${spirit.name} · ${bondTitle(spirit.bond)}`);
+  $('log').innerHTML = ''; addMsg('sys', `${spirit.name} · ${bondTitle(spirit.bond)}`);
   return h;
 }
 function greet(h){
@@ -626,89 +747,163 @@ function greet(h){
   spiritSays(why);
 }
 async function stopStage(keepStatus){
-  $('standBtn').style.display = 'none'; $('diag').style.display = 'none';
   document.documentElement.classList.remove('ar'); document.body.classList.remove('ar');
   if (mind){ try{ mind.renderer.setAnimationLoop(null); await mind.stop(); }catch{} $('arContainer').innerHTML = ''; mind = null; }
-  if (previewRenderer){ previewRenderer.setAnimationLoop(null); previewRenderer.dispose(); $('previewContainer').innerHTML = ''; previewRenderer = null; }
+  if (renderer){ renderer.setAnimationLoop(null); renderer.dispose(); renderer = null; }
+  if (stream){ stream.getTracks().forEach(t => t.stop()); stream = null; }
+  if (orient){ removeEventListener('deviceorientation', orient); orient = null; }
+  $('floatContainer').innerHTML = ''; $('previewContainer').innerHTML = '';
   speechSynthesis?.cancel();
-  spirit && (spirit.lastSeen = Date.now(), persist());
-  $('stage').style.display = $('hud').style.display = $('chat').style.display = $('hint').style.display = 'none';
-  $('previewContainer').style.display = 'none';
+  if (spirit){ spirit.lastSeen = Date.now(); persist(); }
+  for (const id of ['stage','hud','chat','hint','diag','standBtn','arContainer','floatContainer','previewContainer']) $(id).style.display = 'none';
   $('setup').style.display = 'block'; if (keepStatus !== true) status('');
+  mode = null;
 }
 $('menuBtn').onclick = stopStage;
 
-$('btnAR').onclick = async () => {
+// rebuild after turning the model (orientation of AI models varies)
+$('turnBtn').onclick = async () => {
+  if (!creature) return;
+  settings.yaw = ((settings.yaw || 0) + 1) % 4; ls.set(SET_KEY, settings);
+  const parent = creature.group.parent, pos = creature.group.position.clone(), sc = creature.group.scale.clone(), mood = $('moodLbl').textContent;
+  const fresh = await createSpirit(); fresh.group.position.copy(pos); fresh.group.scale.copy(sc); fresh.setMood(mood);
+  parent?.remove(creature.group); parent?.add(fresh.group); creature = fresh;
+};
+
+function applyStand(){
+  if (!mount || !creature) return;
+  const stand = settings.stand !== false;
+  mount.rotation.x = stand ? Math.PI/2 : 0;
+  creature.group.position.set(0, stand ? 0.32 : 0.05, stand ? 0 : 0.3);
+  $('standBtn').textContent = stand ? 'On wall?' : 'On table?';
+}
+$('standBtn').onclick = () => { settings.stand = settings.stand === false; ls.set(SET_KEY, settings); applyStand(); };
+
+function makeRenderer(container){
+  const r = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  r.setPixelRatio(Math.min(2, devicePixelRatio)); r.setSize(innerWidth, innerHeight);
+  r.outputColorSpace = THREE.SRGBColorSpace;
+  container.appendChild(r.domElement); return r;
+}
+
+/* --- Mode A: float in my room (works with any object; turns with the phone's gyro) --- */
+$('btnFloat').onclick = async () => {
+  // iOS needs motion permission requested directly from the tap
+  let motionOK = true;
+  try{ if (typeof DeviceOrientationEvent !== 'undefined' && DeviceOrientationEvent.requestPermission) motionOK = (await DeviceOrientationEvent.requestPermission()) === 'granted'; }catch{ motionOK = false; }
   saveForm();
-  $('btnAR').disabled = true;
+  try{
+    status('Waking the spirit…');
+    await loadLibs(false); clock = new THREE.Clock();
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } }, audio: false });
+    creature = await createSpirit();
+  }catch(err){ status('Could not start: ' + (err.message || err)); await stopStage(true); return; }
+  mode = 'float';
+  document.documentElement.classList.add('ar'); document.body.classList.add('ar');
+  const el = $('floatContainer'); el.style.display = 'block';
+  const h = showStage();
+  const video = document.createElement('video'); video.setAttribute('playsinline', ''); video.muted = true; video.autoplay = true; video.srcObject = stream;
+  el.appendChild(video); video.play().catch(() => {});
+  renderer = makeRenderer(el);
+  const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, .05, 50);
+  scene.add(creature.group); creature.group.scale.setScalar(0.75);
+  // gyro look-around
+  const euler = new THREE.Euler(), q0 = new THREE.Quaternion(), q1 = new THREE.Quaternion(-Math.sqrt(.5), 0, 0, Math.sqrt(.5)), zee = new THREE.Vector3(0, 0, 1);
+  let placed = false, gotGyro = false;
+  const place = () => { const f = new THREE.Vector3(0, 0, -1).applyQuaternion(cam.quaternion); f.y = Math.max(-0.5, Math.min(0.2, f.y)); f.normalize();
+    creature.group.position.copy(f.multiplyScalar(2.2)).add(new THREE.Vector3(0, -0.25, 0)); placed = true; creature.react('hop'); };
+  orient = e => { if (e.alpha == null) return; gotGyro = true;
+    const o = THREE.MathUtils.degToRad(screen.orientation?.angle ?? window.orientation ?? 0);
+    euler.set(THREE.MathUtils.degToRad(e.beta), THREE.MathUtils.degToRad(e.alpha), -THREE.MathUtils.degToRad(e.gamma), 'YXZ');
+    cam.quaternion.setFromEuler(euler); cam.quaternion.multiply(q1); cam.quaternion.multiply(q0.setFromAxisAngle(zee, -o));
+    if (!placed) place(); };
+  if (motionOK) addEventListener('deviceorientation', orient);
+  setTimeout(() => { if (!placed) place(); }, 800);
+  el.onclick = () => place(); // tap anywhere to call the spirit in front of you
+  $('hint').textContent = motionOK ? 'Tap the screen to call your spirit in front of you' : 'Motion access is off, so the spirit stays in view';
+  $('hint').style.display = 'block'; setTimeout(() => $('hint').style.display = 'none', 3500);
+  addEventListener('resize', () => { if (!renderer || mode !== 'float') return; cam.aspect = innerWidth/innerHeight; cam.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+  renderer.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); renderer.render(scene, cam); });
+  greet(h);
+};
+
+/* --- Mode B: on the object / photo (image tracking) --- */
+async function getTargetURL(){
+  const saved = await idb.get('target');
+  if (saved) return { url: URL.createObjectURL(new Blob([saved])), count: (await idb.get('targetCount')) || 1 };
+  let imgs = photoImgs;
+  if (!imgs.length){ const src = await idb.get('bodyPhoto'); if (src) imgs = [await loadImg(src)]; }
+  if (!imgs.length) return null;
+  status('Learning what your object looks like… (10–40 sec)');
+  const compiler = new window.MINDAR.IMAGE.Compiler();
+  await compiler.compileImageTargets(imgs, p => status(`Learning your object… ${Math.round(p)}%`));
+  const buf = await compiler.exportData();
+  await idb.set('target', buf); await idb.set('targetCount', imgs.length);
+  return { url: URL.createObjectURL(new Blob([buf])), count: imgs.length };
+}
+$('btnAR').onclick = async () => {
+  saveForm(); $('btnAR').disabled = true;
   try{
     await loadLibs(true); clock = new THREE.Clock(); visible = false;
     const target = await getTargetURL();
-    if (!target){ status('Add at least one photo of your sculpture first.'); return; }
+    if (!target){ status('Add a photo first (step 1).'); return; }
     status('Waking the spirit…');
     creature = await createSpirit();
     status('Opening camera…');
+    $('setup').style.display = 'none'; $('stage').style.display = 'block'; $('arContainer').style.display = 'block';
+    document.documentElement.classList.add('ar'); document.body.classList.add('ar');
     mind = new MindARThree({ container: $('arContainer'), imageTargetSrc: target.url, maxTrack: 1, uiLoading:'no', uiScanning:'no', uiError:'no', filterMinCF:0.0001, filterBeta:0.001 });
-    const { renderer, scene, camera } = mind;
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x334433, 1.2));
+    const { renderer: r, scene, camera } = mind;
     creature.group.scale.setScalar(settings.body === 'wisp' ? 0.22 : 0.5);
-    // one anchor per photo; the same spirit hops to whichever angle is seen
-    // mount: lets the spirit stand up out of a flat drawing, or float in front of a wall
     mount = new THREE.Group(); mount.add(creature.group); applyStand();
     for (let i = 0; i < target.count; i++){
       const a = mind.addAnchor(i);
       a.onTargetFound = () => { a.group.add(mount); if (!visible){ visible = true; $('hint').style.display = 'none'; creature.react('hop'); } };
       a.onTargetLost = () => { visible = false; $('hint').style.display = 'block'; };
     }
-    document.documentElement.classList.add('ar'); document.body.classList.add('ar');
-    // the AR view must be visible BEFORE starting, or the camera feed is sized to zero
-    $('setup').style.display = 'none'; $('stage').style.display = 'block'; $('arContainer').style.display = 'block';
     await mind.start();
-    $('standBtn').style.display = 'inline-block';
-    // safety net: re-measure once the view is laid out, and show a tiny readout for debugging
-    const fix = () => { try{ mind.resize(); }catch{}
-      const v = mind.video, c = $('arContainer');
-      $('diag').style.display = 'block';
-      $('diag').textContent = `build 4 · view ${c.clientWidth}x${c.clientHeight} · cam ${v?.videoWidth||0}x${v?.videoHeight||0} · shown ${v?.style.width||'?'}`;
-      if (v){ v.play?.().catch(()=>{}); } };
+    mode = 'ar';
+    const h = showStage();
+    $('hint').textContent = 'Point your camera at the object…'; $('hint').style.display = 'block'; $('standBtn').style.display = 'inline-block';
+    const fix = () => { try{ mind.resize(); }catch{} const v = mind.video, c = $('arContainer');
+      $('diag').style.display = 'block'; $('diag').textContent = `build 5 · view ${c.clientWidth}x${c.clientHeight} · cam ${v?.videoWidth||0}x${v?.videoHeight||0}`; v?.play?.().catch(() => {}); };
     setTimeout(fix, 300); setTimeout(fix, 1500);
-    const h = showStage(); $('hint').style.display = 'block';
-    renderer.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); renderer.render(scene, camera); });
+    r.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); r.render(scene, camera); });
     greet(h);
   }catch(err){
-    console.error(err); status('Could not start AR: ' + (err.message || err) + (location.protocol === 'https:' ? '' : ' (the camera needs an https:// link)'));
+    console.error(err); status('Could not start AR: ' + (err.message || err));
     await stopStage(true);
   }finally{ $('btnAR').disabled = false; }
 };
 
+/* --- Preview (no camera) --- */
 $('btnPreview').onclick = async () => {
   saveForm();
-  try{
-    status('Waking the spirit…');
-    await loadLibs(false); clock = new THREE.Clock();
-    creature = await createSpirit();
-  }catch(err){ status('Could not load: ' + (err.message || err)); return; }
+  try{ status('Waking the spirit…'); await loadLibs(false); clock = new THREE.Clock(); creature = await createSpirit(); }
+  catch(err){ status('Could not load: ' + (err.message || err)); return; }
+  mode = 'preview';
   const el = $('previewContainer'); el.style.display = 'block';
   const h = showStage();
-  previewRenderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
-  previewRenderer.setPixelRatio(Math.min(2, devicePixelRatio)); previewRenderer.setSize(innerWidth, innerHeight);
-  el.appendChild(previewRenderer.domElement);
+  renderer = makeRenderer(el);
   const scene = new THREE.Scene(), cam = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, .1, 50);
-  cam.position.set(0, 0.3, 4.2);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x334433, 1.2));
-  const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.8, 0.5, 32), new THREE.MeshStandardMaterial({ color:0x6b6e6a, roughness:.9 }));
-  ped.position.y = -1.3; scene.add(ped);
-  creature.group.position.y = 0.1; scene.add(creature.group);
-  addEventListener('resize', () => { if (!previewRenderer) return; cam.aspect = innerWidth/innerHeight; cam.updateProjectionMatrix(); previewRenderer.setSize(innerWidth, innerHeight); });
-  previewRenderer.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); previewRenderer.render(scene, cam); });
+  cam.position.set(0, 0.2, 3.6);
+  const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.8, 0.3, 32), new THREE.MeshStandardMaterial({ color: 0x6b6e6a, roughness: .9 }));
+  ped.position.y = -0.95; scene.add(ped, new THREE.HemisphereLight(0xffffff, 0x334433, 0.6));
+  scene.add(creature.group);
+  // drag to spin the model around
+  let drag = null; el.onpointerdown = e => drag = e.clientX; el.onpointerup = () => drag = null;
+  el.onpointermove = e => { if (drag == null) return; scene.rotation.y += (e.clientX - drag) * 0.01; drag = e.clientX; };
+  addEventListener('resize', () => { if (!renderer || mode !== 'preview') return; cam.aspect = innerWidth/innerHeight; cam.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+  renderer.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); renderer.render(scene, cam); });
   greet(h);
 };
 
 $('btnReset').onclick = async () => {
-  if ($('btnReset').dataset.armed !== '1'){ $('btnReset').dataset.armed = '1'; $('btnReset').textContent = 'Tap again to confirm'; return; }
-  localStorage.removeItem(LS_KEY); await idb.del('target'); await idb.del('targetCount'); await idb.del('bodyPhoto'); await idb.del('scan'); await idb.del('scanName'); $('scanName').textContent = '';
-  spirit = null; $('fName').value = $('fDesc').value = $('fPersona').value = ''; $('thumbs').innerHTML = '';
-  $('btnReset').dataset.armed = ''; $('btnReset').textContent = 'Reset spirit'; status('Spirit released. Start fresh anytime.');
+  if ($('btnReset').dataset.armed !== '1'){ $('btnReset').dataset.armed = '1'; $('btnReset').textContent = 'Tap again to erase the spirit'; return; }
+  localStorage.removeItem(LS_KEY);
+  for (const k of ['target','targetCount','bodyPhoto','scan','scanName']) await idb.del(k);
+  spirit = null; $('fName').value = $('fDesc').value = $('fPersona').value = ''; $('thumbs').innerHTML = ''; genStatus('');
+  $('btnReset').dataset.armed = ''; $('btnReset').textContent = 'Reset everything'; status('Spirit released. Start fresh anytime.');
 };
 </script>
 </body>
