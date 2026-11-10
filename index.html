@@ -67,7 +67,7 @@
 
 <!-- ============ SETUP ============ -->
 <section id="setup">
-  <div class="mono">KDS // Prototype One</div>
+  <div class="mono">KDS // Prototype One · build 4</div>
   <h1>Wake a shrine spirit</h1>
   <p>Photograph your sculpture, give its spirit a name, then point your phone at it.</p>
 
@@ -136,6 +136,7 @@
 </div>
 
 <div id="hint">Point your camera at the sculpture…</div>
+<div id="diag" class="mono" style="position:absolute;left:12px;top:calc(110px + env(safe-area-inset-top));z-index:11;font-size:9px;display:none"></div>
 
 <div id="chat">
   <div id="log"></div>
@@ -625,7 +626,7 @@ function greet(h){
   spiritSays(why);
 }
 async function stopStage(keepStatus){
-  $('standBtn').style.display = 'none';
+  $('standBtn').style.display = 'none'; $('diag').style.display = 'none';
   document.documentElement.classList.remove('ar'); document.body.classList.remove('ar');
   if (mind){ try{ mind.renderer.setAnimationLoop(null); await mind.stop(); }catch{} $('arContainer').innerHTML = ''; mind = null; }
   if (previewRenderer){ previewRenderer.setAnimationLoop(null); previewRenderer.dispose(); $('previewContainer').innerHTML = ''; previewRenderer = null; }
@@ -664,6 +665,13 @@ $('btnAR').onclick = async () => {
     $('setup').style.display = 'none'; $('stage').style.display = 'block'; $('arContainer').style.display = 'block';
     await mind.start();
     $('standBtn').style.display = 'inline-block';
+    // safety net: re-measure once the view is laid out, and show a tiny readout for debugging
+    const fix = () => { try{ mind.resize(); }catch{}
+      const v = mind.video, c = $('arContainer');
+      $('diag').style.display = 'block';
+      $('diag').textContent = `build 4 · view ${c.clientWidth}x${c.clientHeight} · cam ${v?.videoWidth||0}x${v?.videoHeight||0} · shown ${v?.style.width||'?'}`;
+      if (v){ v.play?.().catch(()=>{}); } };
+    setTimeout(fix, 300); setTimeout(fix, 1500);
     const h = showStage(); $('hint').style.display = 'block';
     renderer.setAnimationLoop(() => { const dt = clock.getDelta(); creature.update(clock.elapsedTime, dt, spirit.energy); renderer.render(scene, camera); });
     greet(h);
